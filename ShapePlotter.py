@@ -1,58 +1,94 @@
+import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
-from ipywidgets import interact, FloatSlider
+from matplotlib.widgets import Slider
+from scipy.special import sph_harm
 
-# Define axially symmetric spherical harmonics (X0)
-def spherical_harmonic(l, theta):
-    if l == 0:
-        return 0.282095  # 1 / (2 * sqrt(pi))
-    elif l == 1:
-        return 0.488603 * np.cos(theta)  # sqrt(3 / (4 * pi)) * cos(theta)
-    elif l == 2:
-        return 0.315392 * (3 * np.cos(theta)**2 - 1)  # sqrt(5 / (16 * pi)) * (3 * cos(theta)^2 - 1)
-    elif l == 3:
-        return 0.546274 * (5 * np.cos(theta)**3 - 3 * np.cos(theta))  # sqrt(7 / (16 * pi)) * (5 * cos(theta)^3 - 3 * cos(theta))
-    elif l == 4:
-        return 0.373176 * (35 * np.cos(theta)**4 - 30 * np.cos(theta)**2 + 3)  # sqrt(9 / (256 * pi)) * (35 * cos(theta)^4 - 30 * cos(theta)^2 + 3)
-    elif l == 5:
-        return 0.590044 * (63 * np.cos(theta)**5 - 70 * np.cos(theta)**3 + 15 * np.cos(theta))  # sqrt(11 / (256 * pi)) * (63 * cos(theta)^5 - 70 * cos(theta)^3 + 15 * cos(theta))
-    elif l == 6:
-        return 0.418501 * (231 * np.cos(theta)**6 - 315 * np.cos(theta)**4 + 105 * np.cos(theta)**2 - 5)  # sqrt(13 / (1024 * pi)) * (231 * cos(theta)^6 - 315 * cos(theta)^4 + 105 * cos(theta)^2 - 5)
-    elif l == 7:
-        return 0.628069 * (429 * np.cos(theta)**7 - 693 * np.cos(theta)**5 + 315 * np.cos(theta)**3 - 35 * np.cos(theta))  # sqrt(15 / (1024 * pi)) * (429 * cos(theta)^7 - 693 * cos(theta)^5 + 315 * cos(theta)^3 - 35 * cos(theta))
-    elif l == 8:
-        return 0.456946 * (6435 * np.cos(theta)**8 - 12012 * np.cos(theta)**6 + 6930 * np.cos(theta)**4 - 1260 * np.cos(theta)**2 + 35)  # sqrt(17 / (16384 * pi)) * (6435 * cos(theta)^8 - 12012 * cos(theta)^6 + 6930 * cos(theta)^4 - 1260 * cos(theta)^2 + 35)
-    else:
-        return 0
+matplotlib.use('TkAgg')
 
-# Calculate radius
-def calculate_radius(theta, params):
-    radius = 1.0  # Base radius
-    for l, param in enumerate(params):
-        radius += param * spherical_harmonic(l, theta)
+
+def calculate_radius(theta, parameters):
+    """Calculate the radius for each angle using spherical harmonics."""
+    radius = np.ones_like(theta)
+
+    for l in range(1, 9):
+        # Using only the m=0 harmonics (axially symmetric)
+        # Real part of Y(l,0) is sufficient as m=0 harmonics are real
+        harmonic = np.real(sph_harm(0, l, 0, theta))
+        radius += parameters[l - 1] * harmonic
+
     return radius
 
-# Create plot
-def plot_shape(params):
+
+def main():
+    # Set up the figure and single axis for the plot
+    fig = plt.figure(figsize=(10, 8))
+    ax_plot = plt.subplot(111)
+
+    # Adjust the main plot area
+    plt.subplots_adjust(left=0.1, bottom=0.4, right=0.9, top=0.95)
+
+    # Initial parameters
+    num_harmonics = 8
+    initial_params = (0.0,) * num_harmonics
     theta = np.linspace(0, 2 * np.pi, 1000)
-    radius = calculate_radius(theta, params)
+
+    # Calculate and plot initial shape
+    radius = calculate_radius(theta, initial_params)
     x = radius * np.cos(theta)
     y = radius * np.sin(theta)
+    line, = ax_plot.plot(x, y)
 
-    plt.figure(figsize=(6, 6))
-    plt.plot(x, y)
-    plt.fill(x, y, alpha=0.3)
-    plt.xlim(-3, 3)
-    plt.ylim(-3, 3)
-    plt.title("2D Shape Plot")
-    plt.xlabel("X")
-    plt.ylabel("Y")
-    plt.grid(True)
-    plt.show()
+    # Set up the plot
+    ax_plot.set_aspect('equal')
+    ax_plot.grid(True)
+    ax_plot.set_title('2D Shape with Spherical Harmonics Deformation')
+    ax_plot.set_xlabel('X')
+    ax_plot.set_ylabel('Y')
 
-# Create sliders
-initial_params = [0.0] * 9
-sliders = [FloatSlider(min=-1.0, max=1.0, step=0.01, value=initial_params[i], description=f'β{i}') for i in range(9)]
+    # Create sliders
+    slider_height = 0.035  # Height between sliders
+    sliders = []
 
-# Interactive plot
-interact(plot_shape, params=sliders)
+    for i in range(num_harmonics):
+        ax = plt.axes((0.2, 0.05 + i * slider_height, 0.6, 0.02))
+
+        # Special case for Y20 (index 1)
+        if i == 1:
+            valmin, valmax = 0.0, 3.0
+        else:
+            valmin, valmax = -1.0, 1.0
+
+        slider = Slider(
+            ax=ax,
+            label=f'β{i + 1}0',
+            valmin=valmin,
+            valmax=valmax,
+            valinit=initial_params[i],
+            valstep=0.01
+        )
+        sliders.append(slider)
+
+    # Update function for the plot
+    def update(val):
+        parameters = [slider.val for slider in sliders]
+        radius = calculate_radius(theta, parameters)
+        x = radius * np.cos(theta)
+        y = radius * np.sin(theta)
+        line.set_data(x, y)
+
+        # Update plot limits to accommodate shape changes
+        max_radius = np.max(np.abs(radius)) * 1.1
+        ax_plot.set_xlim(-max_radius, max_radius)
+        ax_plot.set_ylim(-max_radius, max_radius)
+        fig.canvas.draw_idle()
+
+    # Connect the update function to the sliders
+    for slider in sliders:
+        slider.on_changed(update)
+
+    plt.show(block=True)
+
+
+if __name__ == '__main__':
+    main()
