@@ -243,6 +243,10 @@ def main():
         ax_plot.set_xlim(-max_radius, max_radius)
         ax_plot.set_ylim(-max_radius, max_radius)
 
+        # Calculate the lengths of the shape in the X and Y axes
+        x_length = np.max(plot_x) - np.min(plot_x)
+        y_length = np.max(plot_y) - np.min(plot_y)
+
         # Update volume information
         sphere_volume = calculate_sphere_volume(Z, N)
         shape_volume = calculate_volume(Z, N, parameters)
@@ -251,7 +255,9 @@ def main():
         volume_text.set_text(
             f'Sphere Volume: {sphere_volume:.2f} fm³\n'
             f'Shape Volume: {shape_volume:.2f} fm³\n'
-            f'Volume Fixing Factor: {volume_fix:.4f}'
+            f'Volume Fixing Factor: {volume_fix:.4f}\n'
+            f'X Length: {x_length:.2f} fm\n'
+            f'Y Length: {y_length:.2f} fm'
         )
 
         fig.canvas.draw_idle()
