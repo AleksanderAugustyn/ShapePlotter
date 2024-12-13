@@ -15,12 +15,12 @@ def calculate_volume(Z, N, parameters):
     Calculate the volume of a nucleus with given parameters.
 
     Args:
-        Z (int): The number of protons.
-        N (int): The number of neutrons.
-        parameters (tuple): A tuple of deformation parameters (beta10, beta20, ..., beta80).
+    :parameter    Z (int): The number of protons.
+    :parameter    N (int): The number of neutrons.
+    :parameter    parameters (tuple): A tuple of deformation parameters (beta10, beta20, ..., beta80).
 
     Returns:
-        float: The calculated volume of the nucleus.
+    :return    float: The calculated volume of the nucleus.
     """
     NumberOfNucleons = Z + N
     beta10, beta20, beta30, beta40, beta50, beta60, beta70, beta80 = parameters
@@ -122,11 +122,11 @@ def calculate_sphere_volume(Z, N):
     Calculate the volume of a spherical nucleus.
 
     Args:
-        Z (int): The number of protons.
-        N (int): The number of neutrons.
+    :parameter    Z (int): The number of protons.
+    :parameter    N (int): The number of neutrons.
 
     Returns:
-        float: The calculated volume of the spherical nucleus.
+    :return    float: The calculated volume of the spherical nucleus.
     """
     SphereVolume = 4 / 3 * np.pi * (Z + N) * r0 ** 3
 
@@ -140,12 +140,12 @@ def calculate_volume_fixing_factor(Z, N, parameters):
     Calculate the volume fixing factor to conserve volume.
 
     Args:
-        Z (int): The number of protons.
-        N (int): The number of neutrons.
-        parameters (tuple): A tuple of deformation parameters.
+    :parameter    Z (int): The number of protons.
+    :parameter    N (int): The number of neutrons.
+    :parameter    parameters (tuple): A tuple of deformation parameters.
 
     Returns:
-        float: The volume fixing factor.
+    :return    float: The volume fixing factor.
     """
     # Calculate the volume of the initial shape
     initial_volume = calculate_volume(Z, N, parameters)
@@ -166,13 +166,13 @@ def calculate_radius(theta, parameters, Z, N):
     Calculate the nuclear radius as a function of polar angle theta.
 
     Args:
-        theta (np.ndarray): An array of polar angles.
-        parameters (tuple): A tuple of deformation parameters.
-        Z (int): The number of protons.
-        N (int): The number of neutrons.
+    :parameter    theta (np.ndarray): An array of polar angles.
+    :parameter    parameters (tuple): A tuple of deformation parameters.
+    :parameter    Z (int): The number of protons.
+    :parameter    N (int): The number of neutrons.
 
     Returns:
-        np.ndarray: The calculated nuclear radius for each theta.
+    :return    np.ndarray: The calculated nuclear radius for each theta.
     """
     # Base shape from spherical harmonics
     radius = np.ones_like(theta)
