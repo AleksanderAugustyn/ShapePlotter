@@ -267,7 +267,9 @@ def main():
         ax = plt.axes((0.2, 0.11 + i * slider_height, 0.6, 0.02))
 
         # Special case for β20
-        if i == 1:
+        if (i == 0):
+            valmin, valmax = -1.6, 1.6
+        elif (i == 1):
             valmin, valmax = 0.0, 3.0
         else:
             valmin, valmax = -1.0, 1.0
