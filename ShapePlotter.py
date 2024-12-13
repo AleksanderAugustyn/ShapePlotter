@@ -200,6 +200,7 @@ def main():
         else:
             Valmin, Valmax = -1.0, 1.0
 
+        Slider = None  # Initialize Slider to None
         Slider = Slider(
             ax=Ax,
             label=f'β{i + 1}0',
