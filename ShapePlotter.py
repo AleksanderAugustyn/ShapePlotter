@@ -260,6 +260,8 @@ def main():
         filename = f"{Z}_{N}_{beta_values}.png"
         fig.savefig(filename)
 
+        print(f"Plot saved as {filename}")
+
     save_button.on_clicked(save_plot)
 
     # Create sliders for deformation parameters
@@ -267,9 +269,9 @@ def main():
         ax = plt.axes((0.2, 0.11 + i * slider_height, 0.6, 0.02))
 
         # Special case for β20
-        if (i == 0):
+        if i == 0:
             valmin, valmax = -1.6, 1.6
-        elif (i == 1):
+        elif i == 1:
             valmin, valmax = 0.0, 3.0
         else:
             valmin, valmax = -1.0, 1.0
@@ -331,7 +333,12 @@ def main():
     slider_Z.on_changed(update)
     slider_N.on_changed(update)
 
+    # Update the plot once to show initial values
+    update(None)
+
     plt.show(block=True)
+
+
 
 
 if __name__ == '__main__':
