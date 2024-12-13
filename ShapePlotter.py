@@ -193,8 +193,8 @@ def main():
     ax_Z = plt.axes((0.2, 0.05, 0.6, 0.02))
     ax_N = plt.axes((0.2, 0.08, 0.6, 0.02))
 
-    slider_Z = Slider(ax=ax_Z, label='Z', valmin=82, valmax=120, valinit=initial_Z, valstep=1, fontsize=15)
-    slider_N = Slider(ax=ax_N, label='N', valmin=100, valmax=180, valinit=initial_N, valstep=1, fontsize=15)
+    slider_Z = Slider(ax=ax_Z, label='Z', valmin=82, valmax=120, valinit=initial_Z, valstep=1)
+    slider_N = Slider(ax=ax_N, label='N', valmin=100, valmax=180, valinit=initial_N, valstep=1)
 
     # Create sliders for deformation parameters
     for i in range(num_harmonics):
@@ -208,7 +208,7 @@ def main():
 
         slider = Slider(
             ax=ax,
-            label=f'β{i + 1}0', fontsize=15,
+            label=f'β{i + 1}0',
             valmin=valmin,
             valmax=valmax,
             valinit=initial_params[i],
