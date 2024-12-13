@@ -1,7 +1,7 @@
 import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider
+from matplotlib.widgets import Slider, Button
 from scipy.special import sph_harm
 
 matplotlib.use('TkAgg')
@@ -244,6 +244,23 @@ def main():
 
     slider_N.label.set_size(18)
     slider_N.valtext.set_size(18)
+
+    # Create a button for saving the plot
+    ax_save = plt.axes((0.8, 0.025, 0.1, 0.04))
+    save_button = Button(ax=ax_save, label='Save Plot')
+
+    def save_plot(event):
+        """
+        Callback function to save the plot with a filename based on current parameters.
+        """
+        parameters = [plot_slider.val for plot_slider in sliders]
+        Z = int(slider_Z.val)
+        N = int(slider_N.val)
+        beta_values = "_".join(f"{p:.2f}" for p in parameters)
+        filename = f"Z{Z}_N{N}_betas_{beta_values}.png"
+        fig.savefig(filename)
+
+    save_button.on_clicked(save_plot)
 
     # Create sliders for deformation parameters
     for i in range(num_harmonics):
