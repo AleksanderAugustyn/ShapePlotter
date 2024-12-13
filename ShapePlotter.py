@@ -16,7 +16,7 @@ def calculate_volume(Z, N, parameters):
     beta10, beta20, beta30, beta40, beta50, beta60, beta70, beta80 = parameters
 
     # Base coefficient
-    base_coeff = 1 / (111546435 * np.sqrt(np.pi))
+    base_coefficient = 1 / (111546435 * np.sqrt(np.pi))
 
     # Main terms
     term1 = 148728580 * np.pi ** (3 / 2)
@@ -100,7 +100,7 @@ def calculate_volume(Z, N, parameters):
              term31 + squares_sum + beta10_term + beta20_term)
 
     # Final calculation
-    volume = base_coeff * NumberOfNucleons * r0 ** 3 * total
+    volume = base_coefficient * NumberOfNucleons * r0 ** 3 * total
 
     # print(volume)
 
