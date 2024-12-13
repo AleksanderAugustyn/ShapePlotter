@@ -10,86 +10,86 @@ matplotlib.use('TkAgg')
 r0 = 1.16  # Radius constant in fm
 
 
-def calculate_volume(Z, N, parameters):
+def CalculateVolume(Z, N, Parameters):
     """Calculate the volume of the shape using an analytical equation."""
     NumberOfNucleons = Z + N
-    beta10, beta20, beta30, beta40, beta50, beta60, beta70, beta80 = parameters
+    Beta10, Beta20, Beta30, Beta40, Beta50, Beta60, Beta70, Beta80 = Parameters
 
     # Base coefficient
-    base_coeff = 1 / (111546435 * np.sqrt(np.pi))
+    BaseCoeff = 1 / (111546435 * np.sqrt(np.pi))
 
     # Main terms
-    term1 = 148728580 * np.pi ** (3 / 2)
-    term2 = 22309287 * np.sqrt(5) * beta10 ** 2 * beta20
-    term3 = 5311735 * np.sqrt(5) * beta20 ** 3
-    term4 = 47805615 * beta20 ** 2 * beta40
-    term5 = 30421755 * beta30 ** 2 * beta40
-    term6 = 9026235 * beta40 ** 3
-    term7 = 6686100 * np.sqrt(77) * beta30 * beta40 * beta50
-    term8 = 25741485 * beta40 * beta50 ** 2
-    term9 = 13000750 * np.sqrt(13) * beta30 ** 2 * beta60
-    term10 = 7800450 * np.sqrt(13) * beta40 ** 2 * beta60
+    Term1 = 148728580 * np.pi ** (3 / 2)
+    Term2 = 22309287 * np.sqrt(5) * Beta10 ** 2 * Beta20
+    Term3 = 5311735 * np.sqrt(5) * Beta20 ** 3
+    Term4 = 47805615 * Beta20 ** 2 * Beta40
+    Term5 = 30421755 * Beta30 ** 2 * Beta40
+    Term6 = 9026235 * Beta40 ** 3
+    Term7 = 6686100 * np.sqrt(77) * Beta30 * Beta40 * Beta50
+    Term8 = 25741485 * Beta40 * Beta50 ** 2
+    Term9 = 13000750 * np.sqrt(13) * Beta30 ** 2 * Beta60
+    Term10 = 7800450 * np.sqrt(13) * Beta40 ** 2 * Beta60
 
     # Additional terms
-    term11 = 1820105 * np.sqrt(1001) * beta30 * beta50 * beta60
-    term12 = 6729800 * np.sqrt(13) * beta50 ** 2 * beta60
-    term13 = 25053210 * beta40 * beta60 ** 2
-    term14 = 2093000 * np.sqrt(13) * beta60 ** 3
-    term15 = 9100525 * np.sqrt(105) * beta30 * beta40 * beta70
+    Term11 = 1820105 * np.sqrt(1001) * Beta30 * Beta50 * Beta60
+    Term12 = 6729800 * np.sqrt(13) * Beta50 ** 2 * Beta60
+    Term13 = 25053210 * Beta40 * Beta60 ** 2
+    Term14 = 2093000 * np.sqrt(13) * Beta60 ** 3
+    Term15 = 9100525 * np.sqrt(105) * Beta30 * Beta40 * Beta70
 
     # More complex terms
-    term16 = 4282600 * np.sqrt(165) * beta40 * beta50 * beta70
-    term17 = 1541736 * np.sqrt(1365) * beta30 * beta60 * beta70
-    term18 = 1014300 * np.sqrt(2145) * beta50 * beta60 * beta70
-    term19 = 24647490 * beta40 * beta70 ** 2
-    term20 = 6037500 * np.sqrt(13) * beta60 * beta70 ** 2
+    Term16 = 4282600 * np.sqrt(165) * Beta40 * Beta50 * Beta70
+    Term17 = 1541736 * np.sqrt(1365) * Beta30 * Beta60 * Beta70
+    Term18 = 1014300 * np.sqrt(2145) * Beta50 * Beta60 * Beta70
+    Term19 = 24647490 * Beta40 * Beta70 ** 2
+    Term20 = 6037500 * np.sqrt(13) * Beta60 * Beta70 ** 2
 
     # Beta80 terms
-    term21 = 11241825 * np.sqrt(17) * beta40 ** 2 * beta80
-    term22 = 2569560 * np.sqrt(1309) * beta30 * beta50 * beta80
-    term23 = 6508425 * np.sqrt(17) * beta50 ** 2 * beta80
-    term24 = 3651480 * np.sqrt(221) * beta40 * beta60 * beta80
-    term25 = 5494125 * np.sqrt(17) * beta60 ** 2 * beta80
+    Term21 = 11241825 * np.sqrt(17) * Beta40 ** 2 * Beta80
+    Term22 = 2569560 * np.sqrt(1309) * Beta30 * Beta50 * Beta80
+    Term23 = 6508425 * np.sqrt(17) * Beta50 ** 2 * Beta80
+    Term24 = 3651480 * np.sqrt(221) * Beta40 * Beta60 * Beta80
+    Term25 = 5494125 * np.sqrt(17) * Beta60 ** 2 * Beta80
 
     # Final terms
-    term26 = 1338876 * np.sqrt(1785) * beta30 * beta70 * beta80
-    term27 = 869400 * np.sqrt(2805) * beta50 * beta70 * beta80
-    term28 = 5053125 * np.sqrt(17) * beta70 ** 2 * beta80
-    term29 = 24386670 * beta40 * beta80 ** 2
-    term30 = 5890500 * np.sqrt(13) * beta60 * beta80 ** 2
-    term31 = 1603525 * np.sqrt(17) * beta80 ** 3
+    Term26 = 1338876 * np.sqrt(1785) * Beta30 * Beta70 * Beta80
+    Term27 = 869400 * np.sqrt(2805) * Beta50 * Beta70 * Beta80
+    Term28 = 5053125 * np.sqrt(17) * Beta70 ** 2 * Beta80
+    Term29 = 24386670 * Beta40 * Beta80 ** 2
+    Term30 = 5890500 * np.sqrt(13) * Beta60 * Beta80 ** 2
+    Term31 = 1603525 * np.sqrt(17) * Beta80 ** 3
 
     # Sum of squares term
-    squares_sum = 111546435 * np.sqrt(np.pi) * (
-            beta10 ** 2 + beta20 ** 2 + beta30 ** 2 + beta40 ** 2 +
-            beta50 ** 2 + beta60 ** 2 + beta70 ** 2 + beta80 ** 2
+    SquaresSum = 111546435 * np.sqrt(np.pi) * (
+            Beta10 ** 2 + Beta20 ** 2 + Beta30 ** 2 + Beta40 ** 2 +
+            Beta50 ** 2 + Beta60 ** 2 + Beta70 ** 2 + Beta80 ** 2
     )
 
     # Beta10 related terms
-    beta10_term = 437 * beta10 * (
-            21879 * np.sqrt(105) * beta20 * beta30 +
-            48620 * np.sqrt(21) * beta30 * beta40 +
+    Beta10Term = 437 * Beta10 * (
+            21879 * np.sqrt(105) * Beta20 * Beta30 +
+            48620 * np.sqrt(21) * Beta30 * Beta40 +
             7 * (
-                    5525 * np.sqrt(33) * beta40 * beta50 +
-                    1530 * np.sqrt(429) * beta50 * beta60 +
-                    3927 * np.sqrt(65) * beta60 * beta70 +
-                    3432 * np.sqrt(85) * beta70 * beta80
+                    5525 * np.sqrt(33) * Beta40 * Beta50 +
+                    1530 * np.sqrt(429) * Beta50 * Beta60 +
+                    3927 * np.sqrt(65) * Beta60 * Beta70 +
+                    3432 * np.sqrt(85) * Beta70 * Beta80
             )
     )
 
     # Beta20 related terms
-    beta20_term = 23 * beta20 * (
-            646646 * np.sqrt(5) * beta30 ** 2 +
-            629850 * np.sqrt(5) * beta40 ** 2 +
-            209950 * np.sqrt(385) * beta30 * beta50 +
-            621775 * np.sqrt(5) * beta50 ** 2 +
-            508725 * np.sqrt(65) * beta40 * beta60 +
-            712215 * np.sqrt(33) * beta50 * beta70 +
+    Beta20Term = 23 * Beta20 * (
+            646646 * np.sqrt(5) * Beta30 ** 2 +
+            629850 * np.sqrt(5) * Beta40 ** 2 +
+            209950 * np.sqrt(385) * Beta30 * Beta50 +
+            621775 * np.sqrt(5) * Beta50 ** 2 +
+            508725 * np.sqrt(65) * Beta40 * Beta60 +
+            712215 * np.sqrt(33) * Beta50 * Beta70 +
             21 * np.sqrt(5) * (
-                    29393 * beta60 ** 2 +
-                    29260 * beta70 ** 2 +
-                    5852 * np.sqrt(221) * beta60 * beta80 +
-                    29172 * beta80 ** 2
+                    29393 * Beta60 ** 2 +
+                    29260 * Beta70 ** 2 +
+                    5852 * np.sqrt(221) * Beta60 * Beta80 +
+                    29172 * Beta80 ** 2
             )
     )
 
@@ -100,14 +100,14 @@ def calculate_volume(Z, N, parameters):
              term31 + squares_sum + beta10_term + beta20_term)
 
     # Final calculation
-    volume = base_coeff * NumberOfNucleons * r0 ** 3 * total
+    Volume = BaseCoeff * NumberOfNucleons * r0 ** 3 * Total
 
     # print(volume)
 
-    return volume
+    return Volume
 
 
-def calculate_sphere_volume(Z, N):
+def CalculateSphereVolume(Z, N):
     """Calculate the volume of a sphere using the formula for a sphere."""
     SphereVolume = 4 / 3 * np.pi * (Z + N) * r0 ** 3
 
@@ -116,26 +116,26 @@ def calculate_sphere_volume(Z, N):
     return SphereVolume
 
 
-def CalculateVolumeFixingFactor(Z, N, parameters):
+def CalculateVolumeFixingFactor(Z, N, Parameters):
     """Calculate the volume fixing factor for the shape."""
     # Calculate the volume of the initial shape
-    initial_volume = calculate_volume(Z, N, parameters)
+    InitialVolume = CalculateVolume(Z, N, Parameters)
 
     # Calculate the volume of the sphere
-    sphere_volume = calculate_sphere_volume(Z, N)
+    SphereVolume = CalculateSphereVolume(Z, N)
 
     # Calculate the volume fixing factor
-    volume_fix = (sphere_volume / initial_volume) ** (1 / 3)
+    VolumeFix = (SphereVolume / InitialVolume) ** (1 / 3)
 
     # print(volume_fix)
 
-    return volume_fix
+    return VolumeFix
 
 
-def calculate_radius(theta, parameters, Z, N):
+def CalculateRadius(Theta, Parameters, Z, N):
     """Calculate the radius for each angle using spherical harmonics with volume conservation."""
     # Base shape from spherical harmonics
-    radius = np.ones_like(theta)
+    Radius = np.ones_like(Theta)
 
     for harmonic_index in range(1, 9):
         # Using only the m=0 harmonics (axially symmetric)
@@ -143,29 +143,29 @@ def calculate_radius(theta, parameters, Z, N):
         radius += parameters[harmonic_index - 1] * harmonic
 
     # Calculate volume correction factor
-    VolumeFix = CalculateVolumeFixingFactor(Z, N, parameters)
+    VolumeFix = CalculateVolumeFixingFactor(Z, N, Parameters)
 
     # Apply A^(1/3) scaling and volume conservation
     A = Z + N
-    nuclear_radius = 1.16 * (A ** (1 / 3)) * VolumeFix * radius
+    NuclearRadius = 1.16 * (A ** (1 / 3)) * VolumeFix * Radius
 
-    return nuclear_radius
+    return NuclearRadius
 
 
 def main():
     # Set up the figure
-    fig = plt.figure(figsize=(12, 8))
-    ax_plot = plt.subplot(111)
+    Fig = plt.figure(figsize=(12, 8))
+    AxPlot = plt.subplot(111)
 
     # Adjust the main plot area to make room for all sliders
     plt.subplots_adjust(left=0.1, bottom=0.45, right=0.9, top=0.95)
 
     # Initial parameters
-    num_harmonics = 8
-    initial_params = (0.0,) * num_harmonics
-    initial_Z = 102
-    initial_N = 154
-    theta = np.linspace(0, 2 * np.pi, 2000)  # Note: Changed to [0, π] for proper volume calculation
+    NumHarmonics = 8
+    InitialParams = (0.0,) * NumHarmonics
+    InitialZ = 102
+    InitialN = 154
+    Theta = np.linspace(0, 2 * np.pi, 2000)  # Note: Changed to [0, π] for proper volume calculation
 
     # Calculate and plot initial shape
     radius = calculate_radius(theta, initial_params, initial_Z, initial_N)
@@ -181,12 +181,12 @@ def main():
     ax_plot.set_ylabel('Y (fm)')
 
     # Create sliders for deformation parameters
-    slider_height = 0.03
-    sliders = []
+    SliderHeight = 0.03
+    Sliders = []
 
     # Create sliders for Z and N
-    ax_Z = plt.axes((0.2, 0.05, 0.6, 0.02))
-    ax_N = plt.axes((0.2, 0.08, 0.6, 0.02))
+    AxZ = plt.axes((0.2, 0.05, 0.6, 0.02))
+    AxN = plt.axes((0.2, 0.08, 0.6, 0.02))
 
     slider_Z = Slider(ax=ax_Z, label='Z', valmin=82, valmax=120, valinit=initial_Z, valstep=1)
     slider_N = Slider(ax=ax_N, label='N', valmin=100, valmax=180, valinit=initial_N, valstep=1)
@@ -197,9 +197,9 @@ def main():
 
         # Special case for β20
         if i == 1:
-            valmin, valmax = 0.0, 3.0
+            Valmin, Valmax = 0.0, 3.0
         else:
-            valmin, valmax = -1.0, 1.0
+            Valmin, Valmax = -1.0, 1.0
 
         slider = Slider(
             ax=ax,
