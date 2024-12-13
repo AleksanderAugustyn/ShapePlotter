@@ -339,7 +339,5 @@ def main():
     plt.show(block=True)
 
 
-
-
 if __name__ == '__main__':
     main()
