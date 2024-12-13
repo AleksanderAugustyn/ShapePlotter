@@ -153,9 +153,11 @@ def calculate_radius(theta, parameters, Z, N):
 
 
 def main():
-    # Set up the figure
-    fig = plt.figure(figsize=(12, 8))
-    ax_plot = plt.subplot(111)
+# Set up the figure
+    fig = plt.figure(figsize=(15, 8))
+    ax_plot = fig.add_subplot(121)
+    ax_text = fig.add_subplot(122)
+    ax_text.axis('off')
 
     # Adjust the main plot area to make room for all sliders
     plt.subplots_adjust(left=0.1, bottom=0.45, right=0.9, top=0.95)
@@ -178,7 +180,10 @@ def main():
     ax_plot.grid(True)
     ax_plot.set_title('Nuclear Shape with Volume Conservation')
     ax_plot.set_xlabel('X (fm)')
-    ax_plot.set_ylabel('Y (fm)')
+    ax_plot.set_ylabel('Y (fm)')    
+    
+    # Create a text box for volume information
+    volume_text = ax_text.text(0.1, 0.7, '')
 
     # Create sliders for deformation parameters
     slider_height = 0.03
@@ -223,9 +228,22 @@ def main():
         line.set_data(plot_x, plot_y)
 
         # Update plot limits to accommodate shape changes
+        # Update plot limits to accommodate shape changes
         max_radius = np.max(np.abs(plot_radius)) * 1.5
         ax_plot.set_xlim(-max_radius, max_radius)
         ax_plot.set_ylim(-max_radius, max_radius)
+
+        # Update volume information
+        sphere_volume = calculate_sphere_volume(Z, N)
+        shape_volume = calculate_volume(Z, N, parameters)
+        volume_fix = calculate_volume_fixing_factor(Z, N, parameters)
+
+        volume_text.set_text(
+            f'Sphere Volume: {sphere_volume:.2f} fm³\n'
+            f'Shape Volume: {shape_volume:.2f} fm³\n'
+            f'Volume Fixing Factor: {volume_fix:.4f}'
+        )
+
         fig.canvas.draw_idle()
 
     # Connect the update function to all sliders
