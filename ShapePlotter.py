@@ -246,7 +246,7 @@ def main():
     slider_N.valtext.set_size(18)
 
     # Create a button for saving the plot
-    ax_save = plt.axes((0.8, 0.025, 0.1, 0.04))
+    ax_save = plt.axes((0.8, 0.4, 0.1, 0.04))
     save_button = Button(ax=ax_save, label='Save Plot')
 
     def save_plot(event):
@@ -257,7 +257,7 @@ def main():
         Z = int(slider_Z.val)
         N = int(slider_N.val)
         beta_values = "_".join(f"{p:.2f}" for p in parameters)
-        filename = f"Z{Z}_N{N}_betas_{beta_values}.png"
+        filename = f"{Z}_{N}_{beta_values}.png"
         fig.savefig(filename)
 
     save_button.on_clicked(save_plot)
