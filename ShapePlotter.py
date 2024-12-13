@@ -153,7 +153,7 @@ def calculate_radius(theta, parameters, Z, N):
 
 
 def main():
-# Set up the figure
+    # Set up the figure
     fig = plt.figure(figsize=(15, 8))
     ax_plot = fig.add_subplot(121)
     ax_text = fig.add_subplot(122)
@@ -179,11 +179,11 @@ def main():
     ax_plot.set_aspect('equal')
     ax_plot.grid(True)
     ax_plot.set_title('Nuclear Shape with Volume Conservation', fontsize=18)
-    ax_plot.set_xlabel('X (fm)', fontsize=15)
-    ax_plot.set_ylabel('Y (fm)', fontsize=15)
-    
+    ax_plot.set_xlabel('X (fm)', fontsize=18)
+    ax_plot.set_ylabel('Y (fm)', fontsize=18)
+
     # Create a text box for volume information
-    volume_text = ax_text.text(0.1, 0.7, '', fontsize=15)
+    volume_text = ax_text.text(0.1, 0.7, '', fontsize=24)
 
     # Create sliders for deformation parameters
     slider_height = 0.03
@@ -195,6 +195,12 @@ def main():
 
     slider_Z = Slider(ax=ax_Z, label='Z', valmin=82, valmax=120, valinit=initial_Z, valstep=1)
     slider_N = Slider(ax=ax_N, label='N', valmin=100, valmax=180, valinit=initial_N, valstep=1)
+
+    slider_Z.label.set_size(18)
+    slider_Z.valtext.set_size(18)
+
+    slider_N.label.set_size(18)
+    slider_N.valtext.set_size(18)
 
     # Create sliders for deformation parameters
     for i in range(num_harmonics):
@@ -214,6 +220,10 @@ def main():
             valinit=initial_params[i],
             valstep=0.01
         )
+
+        slider.label.set_size(18)
+        slider.valtext.set_size(18)
+
         sliders.append(slider)
 
     # Update function for the plot
