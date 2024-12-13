@@ -158,26 +158,7 @@ def calculate_volume_fixing_factor(Z, N, parameters):
 
     # print(volume_fix)
 
-    return volume_fix, initial_volume, sphere_volume
-
-def calculate_lowest_radius(theta, parameters, Z, N):
-    """
-    Calculate the lowest nuclear radius for a given shape.
-
-    Args:
-    :parameter    theta (np.ndarray): An array of polar angles.
-    :parameter    parameters (tuple): A tuple of deformation parameters.
-    :parameter    Z (int): The number of protons.
-    :parameter    N (int): The number of neutrons.
-
-    Returns:
-    :return    float: The lowest nuclear radius.
-    """
-    # Calculate the nuclear radius for each theta
-    nuclear_radius = calculate_radius(theta, parameters, Z, N)
-
-    # Return the minimum radius
-    return np.min(nuclear_radius)
+    return volume_fix
 
 
 def calculate_radius(theta, parameters, Z, N):
@@ -312,19 +293,15 @@ def main():
         # Update volume information
         sphere_volume = calculate_sphere_volume(Z, N)
         shape_volume = calculate_volume(Z, N, parameters)
-        volume_fix, initial_volume, sphere_volume = calculate_volume_fixing_factor(Z, N, parameters)
-        lowest_radius = calculate_lowest_radius(theta, parameters, Z, N)
+        volume_fix = calculate_volume_fixing_factor(Z, N, parameters)
 
         volume_text.set_text(
             f'Sphere Volume: {sphere_volume:.2f} fm³\n'
             f'Shape Volume: {shape_volume:.2f} fm³\n'
             f'Volume Fixing Factor: {volume_fix:.4f}\n'
             f'Radius Fixing Factor: {volume_fix ** (1 / 3):.4f}\n'
-            f'Lowest Radius: {lowest_radius:.2f} fm\n'
             f'X Length: {x_length:.2f} fm\n'
-            f'Y Length: {y_length:.2f} fm\n'
-            f'Initial Volume: {initial_volume:.2f} fm³\n'
-            f'Sphere Volume: {sphere_volume:.2f} fm³'
+            f'Y Length: {y_length:.2f} fm'
         )
 
         fig.canvas.draw_idle()
