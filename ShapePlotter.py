@@ -11,7 +11,6 @@ r0 = 1.16  # Radius constant in fm
 
 
 def calculate_volume(Z, N, parameters):
-    """Calculate the volume of the shape using an analytical equation."""
     NumberOfNucleons = Z + N
     beta10, beta20, beta30, beta40, beta50, beta60, beta70, beta80 = parameters
 
@@ -108,7 +107,6 @@ def calculate_volume(Z, N, parameters):
 
 
 def calculate_sphere_volume(Z, N):
-    """Calculate the volume of a sphere using the formula for a sphere."""
     SphereVolume = 4 / 3 * np.pi * (Z + N) * r0 ** 3
 
     # print(SphereVolume)
@@ -117,7 +115,6 @@ def calculate_sphere_volume(Z, N):
 
 
 def calculate_volume_fixing_factor(Z, N, parameters):
-    """Calculate the volume fixing factor for the shape."""
     # Calculate the volume of the initial shape
     initial_volume = calculate_volume(Z, N, parameters)
 
@@ -125,7 +122,7 @@ def calculate_volume_fixing_factor(Z, N, parameters):
     sphere_volume = calculate_sphere_volume(Z, N)
 
     # Calculate the volume fixing factor
-    volume_fix = (sphere_volume / initial_volume) ** (1 / 3)
+    volume_fix = (sphere_volume / initial_volume)
 
     # print(volume_fix)
 
@@ -133,7 +130,6 @@ def calculate_volume_fixing_factor(Z, N, parameters):
 
 
 def calculate_radius(theta, parameters, Z, N):
-    """Calculate the radius for each angle using spherical harmonics with volume conservation."""
     # Base shape from spherical harmonics
     radius = np.ones_like(theta)
 
@@ -142,12 +138,12 @@ def calculate_radius(theta, parameters, Z, N):
         harmonic = np.real(sph_harm(0, harmonic_index, 0, theta))
         radius += parameters[harmonic_index - 1] * harmonic
 
-    # Calculate volume correction factor
-    VolumeFix = calculate_volume_fixing_factor(Z, N, parameters)
+    # Calculate radius correction factor
+    radius_fix = calculate_volume_fixing_factor(Z, N, parameters) ** (1 / 3)
 
     # Apply A^(1/3) scaling and volume conservation
     A = Z + N
-    nuclear_radius = 1.16 * (A ** (1 / 3)) * VolumeFix * radius
+    nuclear_radius = 1.16 * (A ** (1 / 3)) * radius_fix * radius
 
     return nuclear_radius
 
@@ -183,7 +179,7 @@ def main():
     ax_plot.set_ylabel('Y (fm)', fontsize=18)
 
     # Create a text box for volume information
-    volume_text = ax_text.text(0.1, 0.7, '', fontsize=24)
+    volume_text = ax_text.text(0.1, 0.5, '', fontsize=24)
 
     # Create sliders for deformation parameters
     slider_height = 0.03
@@ -256,6 +252,7 @@ def main():
             f'Sphere Volume: {sphere_volume:.2f} fm³\n'
             f'Shape Volume: {shape_volume:.2f} fm³\n'
             f'Volume Fixing Factor: {volume_fix:.4f}\n'
+            f'Radius Fixing Factor: {volume_fix ** (1 / 3):.4f}\n'
             f'X Length: {x_length:.2f} fm\n'
             f'Y Length: {y_length:.2f} fm'
         )
