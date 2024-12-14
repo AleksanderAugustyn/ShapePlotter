@@ -18,6 +18,8 @@ The program is structured as follows:
 -   **`calculate_volume()` function**: Calculates the volume of the nucleus using a numerical integration method.
 -   **`calculate_sphere_volume()` function**: Calculates the volume of a spherical nucleus with the same Z and N.
 -   **`calculate_volume_fixing_factor()` function**: Calculates the volume fixing factor to conserve volume during deformation.
--   **`calculate_radius()` function**: Calculates the nuclear radius as a function of theta, taking into account the deformation parameters.
+-   **`calculate_radius()` function**: Calculates the nuclear radius as a function of theta, taking into account the deformation parameters and volume conservation.
+-   **`update()` function**: This function is connected to the sliders and is called whenever a slider's value changes. It updates the plot with the new shape of the nucleus based on the current values of Z, N, and the deformation parameters. It also recalculates and displays the volume, volume fixing factor, radius fixing factor, and checks for negative radius values.
+-   **`create_button_handler()` function**: This function creates event handlers for the buttons associated with each slider. It allows for incrementing or decrementing the slider values by a fixed step, providing an alternative way to adjust the parameters.
 
 The program uses the `matplotlib` library for plotting and `numpy` for numerical calculations.
