@@ -234,23 +234,26 @@ def calculate_volume_by_integration(number_of_protons, number_of_neutrons, param
     return volume
 
 
-def find_neck_thickness(x_coords, y_coords, theta_vals):
+def find_neck_thickness(x_coords, y_coords, theta_vals, degree_range):
     """
-    Find the neck thickness - shortest distance from x-axis between 45-135 degrees.
+    Find the neck thickness - shortest distance from x-axis between specified degree range.
 
     Args:
     :parameter x_coords (np.ndarray): x coordinates of the nuclear shape
     :parameter y_coords (np.ndarray): y coordinates of the nuclear shape
     :parameter theta_vals (np.ndarray): theta values used for plotting
+    :parameter degree_range (tuple): (start_degree, end_degree) for neck calculation
 
     Returns:
     :return tuple: (neck_thickness, neck_x, neck_y) - the neck thickness and its coordinates
     """
-    # Find indices corresponding to theta between 45 and 135 degrees
-    mask = (theta_vals >= np.pi / 6) & (theta_vals <= 4 * np.pi / 6)
+    # Convert degree range to radians
+    start_rad, end_rad = np.radians(degree_range)
+
+    # Find indices corresponding to theta within the specified degree range
+    mask = (theta_vals >= start_rad) & (theta_vals <= end_rad)
     relevant_x = x_coords[mask]
     relevant_y = y_coords[mask]
-    # relevant_theta = theta_vals[mask]
 
     # Calculate distances from x-axis (absolute y values)
     distances = np.abs(relevant_y)
@@ -439,17 +442,40 @@ def main():
         ax_plot.x_axis_line = ax_plot.plot([x_axis_negative[0], x_axis_positive[0]],
                                            [x_axis_negative[1], x_axis_positive[1]],
                                            color='red')[0]
-        ax_plot.y_axis_line = ax_plot.plot([y_axis_negative[0], y_axis_positive[0]],
-                                           [y_axis_negative[1], y_axis_positive[1]],
-                                           color='blue')[0]
+        ax_plot.y_axis_line = ax_plot.plot(
+            [y_axis_negative[0], y_axis_positive[0]],
+            [y_axis_negative[1], y_axis_positive[1]],
+            color='blue'
+        )[0]
 
-        # Calculate and draw neck
-        neck_thickness, neck_x, neck_y = find_neck_thickness(plot_x, plot_y, theta)
-        ax_plot.neck_line = ax_plot.plot([neck_x, neck_x],
-                                         [-neck_thickness / 2, neck_thickness / 2],
-                                         color='green',
-                                         linewidth=2,
-                                         label='Neck')[0]
+        # Calculate and draw necks for different degree ranges
+        neck_thickness_45_135, neck_x_45_135, neck_y_45_135 = find_neck_thickness(
+            plot_x, plot_y, theta, (45, 135)
+        )
+        neck_thickness_30_150, neck_x_30_150, neck_y_30_150 = find_neck_thickness(
+            plot_x, plot_y, theta, (30, 150)
+        )
+
+        # Remove previous neck lines if they exist
+        for attr in ['neck_line_45_135', 'neck_line_30_150']:
+            if hasattr(ax_plot, attr):
+                getattr(ax_plot, attr).remove()
+
+        # Draw neck lines
+        ax_plot.neck_line_45_135 = ax_plot.plot(
+            [neck_x_45_135, neck_x_45_135],
+            [-neck_thickness_45_135 / 2, neck_thickness_45_135 / 2],
+            color='green',
+            linewidth=2,
+            label='Neck (45-135)'
+        )[0]
+        ax_plot.neck_line_30_150 = ax_plot.plot(
+            [neck_x_30_150, neck_x_30_150],
+            [-neck_thickness_30_150 / 2, neck_thickness_30_150 / 2],
+            color='purple',
+            linewidth=2,
+            label='Neck (30-150)'
+        )[0]
 
         max_radius = np.max(np.abs(plot_radius)) * 1.5
         ax_plot.set_xlim(-max_radius, max_radius)
@@ -459,7 +485,9 @@ def main():
         max_y_length = np.max(plot_x) - np.min(plot_x)
 
         along_x_length = calculate_radius(0.0, parameters, number_of_protons, number_of_neutrons) + calculate_radius(np.pi, parameters, number_of_protons, number_of_neutrons)
-        along_y_length = calculate_radius(np.pi / 2, parameters, number_of_protons, number_of_neutrons) + calculate_radius(-np.pi / 2, parameters, number_of_protons, number_of_neutrons)
+        along_y_length = calculate_radius(
+            np.pi / 2, parameters, number_of_protons, number_of_neutrons
+        ) + calculate_radius(-np.pi / 2, parameters, number_of_protons, number_of_neutrons)
 
         sphere_volume = calculate_sphere_volume(number_of_protons, number_of_neutrons)
         shape_volume = calculate_volume(number_of_protons, number_of_neutrons, parameters)
@@ -486,11 +514,15 @@ def main():
             f'Max Y Length: {max_y_length:.2f} fm\n'
             f'Length Along X Axis (red): {along_x_length:.2f} fm\n'
             f'Length Along Y Axis (blue): {along_y_length:.2f} fm\n'
-            f'Neck Thickness (green): {neck_thickness:.2f} fm\n' +
+            f'Neck Thickness (45-135, green): {neck_thickness_45_135:.2f} fm\n'
+            f'Neck Thickness (30-150, purple): {neck_thickness_30_150:.2f} fm\n' +
             ('Negative radius detected!\n' if negative_radius else '') +
-            ('Volume mismatch detected!\n' + f' {sphere_volume:.4f} vs {shape_volume_integration:.4f} fm³'
+            (f'Volume mismatch detected!\n {sphere_volume:.4f} vs {shape_volume_integration:.4f} fm³\n'
              if volume_mismatch else '')
         )
+
+        # Update the legend
+        ax_plot.legend(fontsize='small', loc='upper right')
 
         fig.canvas.draw_idle()
 
