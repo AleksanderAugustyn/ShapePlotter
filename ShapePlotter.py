@@ -234,9 +234,39 @@ def calculate_volume_by_integration(number_of_protons, number_of_neutrons, param
     return volume
 
 
+def find_neck_thickness(x_coords, y_coords, theta_vals):
+    """
+    Find the neck thickness - shortest distance from x-axis between 45-135 degrees.
+
+    Args:
+    :parameter x_coords (np.ndarray): x coordinates of the nuclear shape
+    :parameter y_coords (np.ndarray): y coordinates of the nuclear shape
+    :parameter theta_vals (np.ndarray): theta values used for plotting
+
+    Returns:
+    :return tuple: (neck_thickness, neck_x, neck_y) - the neck thickness and its coordinates
+    """
+    # Find indices corresponding to theta between 45 and 135 degrees
+    mask = (theta_vals >= np.pi / 4) & (theta_vals <= 3 * np.pi / 4)
+    relevant_x = x_coords[mask]
+    relevant_y = y_coords[mask]
+    # relevant_theta = theta_vals[mask]
+
+    # Calculate distances from x-axis (absolute y values)
+    distances = np.abs(relevant_y)
+
+    # Find the minimum distance and its index
+    neck_idx = np.argmin(distances)
+    neck_thickness = distances[neck_idx] * 2  # Multiply by 2 for full thickness
+    neck_x = relevant_x[neck_idx]
+    neck_y = relevant_y[neck_idx]
+
+    return neck_thickness, neck_x, neck_y
+
+
 def main():
     """
-    Main function to create and display the nuclear shape plot.
+    Main function to create and display the nuclear shape plot with neck thickness calculation.
     """
     # Set up the figure
     fig = plt.figure(figsize=(15, 8))
@@ -276,7 +306,7 @@ def main():
     decrease_buttons = []
     increase_buttons = []
 
-    # Create sliders for number_of_protons and number_of_neutrons with buttons
+    # Create sliders for protons and neutrons with buttons
     ax_z = plt.axes((0.25, 0.05, 0.5, 0.02))
     ax_z_decrease = plt.axes((0.16, 0.05, 0.04, 0.02))
     ax_z_increase = plt.axes((0.80, 0.05, 0.04, 0.02))
@@ -293,7 +323,7 @@ def main():
     btn_n_decrease = Button(ax_n_decrease, '-')
     btn_n_increase = Button(ax_n_increase, '+')
 
-    # Style settings for number_of_protons and number_of_neutrons
+    # Style settings for protons and neutrons
     for slider in [slider_z, slider_n]:
         slider.label.set_fontsize(18)
         slider.valtext.set_fontsize(18)
@@ -371,9 +401,8 @@ def main():
 
         return plot_x[nearest_index], plot_y[nearest_index]
 
-    # Update function for the plot
     def update(_):
-        """Update the plot with new parameters."""
+        """Update the plot with new parameters and calculate neck thickness."""
         parameters = [s.val for s in sliders]
         number_of_protons = int(slider_z.val)
         number_of_neutrons = int(slider_n.val)
@@ -389,15 +418,26 @@ def main():
         y_axis_positive = find_nearest_point(plot_x, plot_y, np.pi / 2)
         y_axis_negative = find_nearest_point(plot_x, plot_y, -np.pi / 2)
 
-        # Remove previous axis lines if they exist
-        if hasattr(ax_plot, 'x_axis_line'):
-            ax_plot.x_axis_line.remove()
-        if hasattr(ax_plot, 'y_axis_line'):
-            ax_plot.y_axis_line.remove()
+        # Remove previous lines if they exist
+        for attr in ['x_axis_line', 'y_axis_line', 'neck_line']:
+            if hasattr(ax_plot, attr):
+                getattr(ax_plot, attr).remove()
 
-        # Draw new axis lines
-        ax_plot.x_axis_line = ax_plot.plot([x_axis_negative[0], x_axis_positive[0]], [x_axis_negative[1], x_axis_positive[1]], color='red')[0]
-        ax_plot.y_axis_line = ax_plot.plot([y_axis_negative[0], y_axis_positive[0]], [y_axis_negative[1], y_axis_positive[1]], color='blue')[0]
+        # Draw axis lines
+        ax_plot.x_axis_line = ax_plot.plot([x_axis_negative[0], x_axis_positive[0]],
+                                           [x_axis_negative[1], x_axis_positive[1]],
+                                           color='red')[0]
+        ax_plot.y_axis_line = ax_plot.plot([y_axis_negative[0], y_axis_positive[0]],
+                                           [y_axis_negative[1], y_axis_positive[1]],
+                                           color='blue')[0]
+
+        # Calculate and draw neck
+        neck_thickness, neck_x, neck_y = find_neck_thickness(plot_x, plot_y, theta)
+        ax_plot.neck_line = ax_plot.plot([neck_x, neck_x],
+                                         [-neck_thickness / 2, neck_thickness / 2],
+                                         color='green',
+                                         linewidth=2,
+                                         label='Neck')[0]
 
         max_radius = np.max(np.abs(plot_radius)) * 1.5
         ax_plot.set_xlim(-max_radius, max_radius)
@@ -413,17 +453,18 @@ def main():
         shape_volume = calculate_volume(number_of_protons, number_of_neutrons, parameters)
         volume_fix = calculate_volume_fixing_factor(number_of_protons, number_of_neutrons, parameters)
 
-        # Check if the volume calculation is correct
+        # Check volume calculation
         volume_mismatch = False
         shape_volume_integration = calculate_volume_by_integration(number_of_protons, number_of_neutrons, parameters)
         if abs(sphere_volume - shape_volume_integration) > 1.0:
             volume_mismatch = True
 
-        # Check if the calculated radius is negative
+        # Check for negative radius
         negative_radius = False
         if np.any(plot_radius < 0):
             negative_radius = True
 
+        # Update information display
         volume_text.set_text(
             f'Sphere Volume: {sphere_volume:.4f} fm³\n'
             f'Shape Volume: {shape_volume:.4f} fm³\n'
@@ -432,31 +473,31 @@ def main():
             f'Max X Length: {max_x_length:.2f} fm\n'
             f'Max Y Length: {max_y_length:.2f} fm\n'
             f'Length Along X Axis (red): {along_x_length:.2f} fm\n'
-            f'Length Along Y Axis (blue): {along_y_length:.2f} fm\n' +
+            f'Length Along Y Axis (blue): {along_y_length:.2f} fm\n'
+            f'Neck Thickness (green): {neck_thickness:.2f} fm\n' +
             ('Negative radius detected!\n' if negative_radius else '') +
-            ('Volume mismatch detected!\n' + f' {sphere_volume:.4f} vs {shape_volume_integration:.4f} fm³' if volume_mismatch else '')
+            ('Volume mismatch detected!\n' + f' {sphere_volume:.4f} vs {shape_volume_integration:.4f} fm³'
+             if volume_mismatch else '')
         )
 
         fig.canvas.draw_idle()
 
     # Function to create button click handlers
-    def create_button_handler(slider_counter, increment):
+    def create_button_handler(slider_obj, increment):
         """
-        Create a button click handler for a slider.
-
-        Args:
-        :parameter slider_counter (Slider): The slider object.
-        :parameter increment (float): The increment value for the slider.
-
-        Returns:
-        :return function: The button click handler function.
+        :param slider_obj:
+        :param increment:
+        :return:
         """
 
         def handler(_):
-            """Handle the button click event."""
-            new_val = slider_counter.val + increment * slider_counter.valstep
-            if slider_counter.valmin <= new_val <= slider_counter.valmax:
-                slider_counter.set_val(new_val)
+            """
+            :param _:
+            :return:
+            """
+            new_val = slider_obj.val + increment * slider_obj.valstep
+            if slider_obj.valmin <= new_val <= slider_obj.valmax:
+                slider_obj.set_val(new_val)
 
         return handler
 
@@ -465,19 +506,19 @@ def main():
         decrease_buttons[i].on_clicked(create_button_handler(slider, -1))
         increase_buttons[i].on_clicked(create_button_handler(slider, 1))
 
-    # Connect number_of_protons and number_of_neutrons button handlers
+    # Connect proton and neutron button handlers
     btn_z_decrease.on_clicked(create_button_handler(slider_z, -1))
     btn_z_increase.on_clicked(create_button_handler(slider_z, 1))
     btn_n_decrease.on_clicked(create_button_handler(slider_n, -1))
     btn_n_increase.on_clicked(create_button_handler(slider_n, 1))
 
-    # Connect the update function to all sliders
+    # Connect update function to all sliders
     for slider in sliders:
         slider.on_changed(update)
     slider_z.on_changed(update)
     slider_n.on_changed(update)
 
-    # Update the plot once to show initial values
+    # Update plot with initial values
     update(None)
 
     plt.show(block=True)
