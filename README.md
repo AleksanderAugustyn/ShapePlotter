@@ -15,7 +15,8 @@ The program is structured as follows:
     -   Calculates the nuclear radius as a function of the polar angle (theta), with checks to prevent negative radius values.
     -   Plots the nuclear shape in 2D and updates the plot in response to user interactions.
 -   **`save_plot()` function**: An event handler connected to a button that saves the generated plot to a PNG file with a filename based on the current parameters.
--   **`calculate_volume()` function**: Calculates the volume of the nucleus using a numerical integration method.
+-   **`calculate_volume()` function**: Calculates the volume of the nucleus using an analytical formula based on the deformation parameters.
+-   **`calculate_volume_by_integration()` function**: Calculates the volume of the nucleus by numerical integration, providing a more accurate measure of the volume, especially for highly deformed shapes. It divides the nucleus into small volume elements and sums them up to obtain the total volume.
 -   **`calculate_sphere_volume()` function**: Calculates the volume of a spherical nucleus with the same Z and N.
 -   **`calculate_volume_fixing_factor()` function**: Calculates the volume fixing factor to conserve volume during deformation.
 -   **`calculate_radius()` function**: Calculates the nuclear radius as a function of theta, taking into account the deformation parameters and volume conservation.
