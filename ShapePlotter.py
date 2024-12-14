@@ -12,7 +12,7 @@ matplotlib.use('TkAgg')
 r0 = 1.16  # Radius constant in fm
 
 
-def calculate_volume(Z, N, parameters):
+def calculate_volume(number_of_protons, number_of_neutrons, parameters):
     """
     Calculate the volume of a nucleus with given parameters.
 
@@ -24,7 +24,7 @@ def calculate_volume(Z, N, parameters):
     Returns:
     :return    float: The calculated volume of the nucleus.
     """
-    NumberOfNucleons = Z + N
+    number_of_nucleons = number_of_protons + number_of_neutrons
     beta10, beta20, beta30, beta40, beta50, beta60, beta70, beta80 = parameters
 
     # Base coefficient
@@ -112,14 +112,14 @@ def calculate_volume(Z, N, parameters):
              term31 + squares_sum + beta10_term + beta20_term)
 
     # Final calculation
-    volume = base_coefficient * NumberOfNucleons * r0 ** 3 * total
+    volume = base_coefficient * number_of_nucleons * r0 ** 3 * total
 
     # print(volume)
 
     return volume
 
 
-def calculate_sphere_volume(Z, N):
+def calculate_sphere_volume(number_of_protons, number_of_neutrons):
     """
     Calculate the volume of a spherical nucleus.
 
@@ -130,14 +130,14 @@ def calculate_sphere_volume(Z, N):
     Returns:
     :return    float: The calculated volume of the spherical nucleus.
     """
-    SphereVolume = 4 / 3 * np.pi * (Z + N) * r0 ** 3
+    sphere_volume = 4 / 3 * np.pi * (number_of_protons + number_of_neutrons) * r0 ** 3
 
-    # print(SphereVolume)
+    # print(sphere_volume)
 
-    return SphereVolume
+    return sphere_volume
 
 
-def calculate_volume_fixing_factor(Z, N, parameters):
+def calculate_volume_fixing_factor(number_of_protons, number_of_neutrons, parameters):
     """
     Calculate the volume fixing factor to conserve volume.
 
@@ -150,10 +150,10 @@ def calculate_volume_fixing_factor(Z, N, parameters):
     :return    float: The volume fixing factor.
     """
     # Calculate the volume of the initial shape
-    initial_volume = calculate_volume(Z, N, parameters)
+    initial_volume = calculate_volume(number_of_protons, number_of_neutrons, parameters)
 
     # Calculate the volume of the sphere
-    sphere_volume = calculate_sphere_volume(Z, N)
+    sphere_volume = calculate_sphere_volume(number_of_protons, number_of_neutrons)
 
     # Calculate the volume fixing factor
     volume_fix = (sphere_volume / initial_volume)
@@ -163,13 +163,13 @@ def calculate_volume_fixing_factor(Z, N, parameters):
     return volume_fix
 
 
-def calculate_radius(theta, parameters, Z, N):
+def calculate_radius(theta, parameters, number_of_protons, number_of_neutrons):
     """
     Calculate the nuclear radius as a function of polar angle theta.
 
     Args:
     :parameter    theta (np.ndarray): An array of polar angles.
-    :parameter    parameters (tuple): A tuple of deformation parameters.
+    :parameter    parameters (tuple): number_of_nucleons tuple of deformation parameters.
     :parameter    Z (int): The number of protons.
     :parameter    N (int): The number of neutrons.
 
@@ -185,11 +185,11 @@ def calculate_radius(theta, parameters, Z, N):
         radius += parameters[harmonic_index - 1] * harmonic
 
     # Calculate radius correction factor
-    radius_fix = calculate_volume_fixing_factor(Z, N, parameters) ** (1 / 3)
+    radius_fix = calculate_volume_fixing_factor(number_of_protons, number_of_neutrons, parameters) ** (1 / 3)
 
-    # Apply A^(1/3) scaling and volume conservation
-    A = Z + N
-    nuclear_radius = 1.16 * (A ** (1 / 3)) * radius_fix * radius
+    # Apply number_of_nucleons^(1/3) scaling and volume conservation
+    number_of_nucleons = number_of_protons + number_of_neutrons
+    nuclear_radius = 1.16 * (number_of_nucleons ** (1 / 3)) * radius_fix * radius
 
     # Check if the calculated radius is not negative
     # if np.any(nuclear_radius < 0):
@@ -198,7 +198,7 @@ def calculate_radius(theta, parameters, Z, N):
     return nuclear_radius
 
 
-def calculate_volume_by_integration(Z, N, parameters):
+def calculate_volume_by_integration(number_of_protons, number_of_neutrons, parameters):
     """
     Calculate the volume of the nucleus by numerical integration.
 
@@ -219,12 +219,12 @@ def calculate_volume_by_integration(Z, N, parameters):
     phi = np.linspace(0, 2 * np.pi, n_phi)
     theta_mesh, phi_mesh = np.meshgrid(theta, phi)
 
-    # Calculate R(theta) for all theta values
-    R = calculate_radius(theta_mesh, parameters, Z, N)
+    # Calculate r(theta) for all theta values
+    r = calculate_radius(theta_mesh, parameters, number_of_protons, number_of_neutrons)
 
     # Volume element in spherical coordinates: r²sin(θ)drdθdφ
-    # Since we're integrating from 0 to R(θ,φ), the r integral gives us R³/3
-    integrand = (R ** 3 * np.sin(theta_mesh)) / 3
+    # Since we're integrating from 0 to r(θ,φ), the r integral gives us r³/3
+    integrand = (r ** 3 * np.sin(theta_mesh)) / 3
 
     # Numerical integration using trapezoidal rule
     volume = np.trapezoid(np.trapezoid(integrand, theta, axis=1), phi)
@@ -250,12 +250,12 @@ def main():
     # Initial parameters
     num_harmonics = 8
     initial_params = (0.0,) * num_harmonics
-    initial_Z = 102
-    initial_N = 154
+    initial_z = 102
+    initial_n = 154
     theta = np.linspace(0, 2 * np.pi, 2000)
 
     # Calculate and plot initial shape
-    radius = calculate_radius(theta, initial_params, initial_Z, initial_N)
+    radius = calculate_radius(theta, initial_params, initial_z, initial_n)
     x = radius * np.sin(theta)
     y = radius * np.cos(theta)
     line, = ax_plot.plot(x, y)
@@ -276,27 +276,27 @@ def main():
     decrease_buttons = []
     increase_buttons = []
 
-    # Create sliders for Z and N with buttons
-    ax_Z = plt.axes((0.25, 0.05, 0.5, 0.02))
-    ax_Z_decrease = plt.axes((0.16, 0.05, 0.04, 0.02))
-    ax_Z_increase = plt.axes((0.80, 0.05, 0.04, 0.02))
+    # Create sliders for number_of_protons and number_of_neutrons with buttons
+    ax_z = plt.axes((0.25, 0.05, 0.5, 0.02))
+    ax_z_decrease = plt.axes((0.16, 0.05, 0.04, 0.02))
+    ax_z_increase = plt.axes((0.80, 0.05, 0.04, 0.02))
 
-    ax_N = plt.axes((0.25, 0.08, 0.5, 0.02))
-    ax_N_decrease = plt.axes((0.16, 0.08, 0.04, 0.02))
-    ax_N_increase = plt.axes((0.80, 0.08, 0.04, 0.02))
+    ax_n = plt.axes((0.25, 0.08, 0.5, 0.02))
+    ax_n_decrease = plt.axes((0.16, 0.08, 0.04, 0.02))
+    ax_n_increase = plt.axes((0.80, 0.08, 0.04, 0.02))
 
-    slider_Z = Slider(ax=ax_Z, label='Z', valmin=82, valmax=120, valinit=initial_Z, valstep=1)
-    slider_N = Slider(ax=ax_N, label='N', valmin=100, valmax=180, valinit=initial_N, valstep=1)
+    slider_z = Slider(ax=ax_z, label='number_of_protons', valmin=82, valmax=120, valinit=initial_z, valstep=1)
+    slider_n = Slider(ax=ax_n, label='number_of_neutrons', valmin=100, valmax=180, valinit=initial_n, valstep=1)
 
-    btn_Z_decrease = Button(ax_Z_decrease, '-')
-    btn_Z_increase = Button(ax_Z_increase, '+')
-    btn_N_decrease = Button(ax_N_decrease, '-')
-    btn_N_increase = Button(ax_N_increase, '+')
+    btn_z_decrease = Button(ax_z_decrease, '-')
+    btn_z_increase = Button(ax_z_increase, '+')
+    btn_n_decrease = Button(ax_n_decrease, '-')
+    btn_n_increase = Button(ax_n_increase, '+')
 
-    # Style settings for Z and N
-    for slider in [slider_Z, slider_N]:
+    # Style settings for number_of_protons and number_of_neutrons
+    for slider in [slider_z, slider_n]:
         slider.label.set_fontsize(18)
-        slider.valtext.set_size(18)
+        slider.valtext.set_fontsize(18)
 
     # Create sliders for deformation parameters with buttons
     for i in range(num_harmonics):
@@ -326,8 +326,8 @@ def main():
         btn_decrease = Button(ax_decrease, '-')
         btn_increase = Button(ax_increase, '+')
 
-        slider.label.set_size(18)
-        slider.valtext.set_size(18)
+        slider.label.set_fontsize(18)
+        slider.valtext.set_fontsize(18)
 
         sliders.append(slider)
         decrease_buttons.append(btn_decrease)
@@ -340,10 +340,10 @@ def main():
     def save_plot(_):
         """Save the current plot to a file."""
         parameters = [s.val for s in sliders]
-        Z = int(slider_Z.val)
-        N = int(slider_N.val)
+        number_of_protons = int(slider_z.val)
+        number_of_neutrons = int(slider_n.val)
         beta_values = "_".join(f"{p:.2f}" for p in parameters)
-        filename = f"{Z}_{N}_{beta_values}.png"
+        filename = f"{number_of_protons}_{number_of_neutrons}_{beta_values}.png"
         fig.savefig(filename)
         print(f"Plot saved as {filename}")
 
@@ -375,10 +375,10 @@ def main():
     def update(_):
         """Update the plot with new parameters."""
         parameters = [s.val for s in sliders]
-        Z = int(slider_Z.val)
-        N = int(slider_N.val)
+        number_of_protons = int(slider_z.val)
+        number_of_neutrons = int(slider_n.val)
 
-        plot_radius = calculate_radius(theta, parameters, Z, N)
+        plot_radius = calculate_radius(theta, parameters, number_of_protons, number_of_neutrons)
         plot_x = plot_radius * np.cos(theta)
         plot_y = plot_radius * np.sin(theta)
         line.set_data(plot_x, plot_y)
@@ -406,16 +406,16 @@ def main():
         max_x_length = np.max(plot_y) - np.min(plot_y)
         max_y_length = np.max(plot_x) - np.min(plot_x)
 
-        along_x_length = calculate_radius(0.0, parameters, Z, N) + calculate_radius(np.pi, parameters, Z, N)
-        along_y_length = calculate_radius(np.pi / 2, parameters, Z, N) + calculate_radius(-np.pi / 2, parameters, Z, N)
+        along_x_length = calculate_radius(0.0, parameters, number_of_protons, number_of_neutrons) + calculate_radius(np.pi, parameters, number_of_protons, number_of_neutrons)
+        along_y_length = calculate_radius(np.pi / 2, parameters, number_of_protons, number_of_neutrons) + calculate_radius(-np.pi / 2, parameters, number_of_protons, number_of_neutrons)
 
-        sphere_volume = calculate_sphere_volume(Z, N)
-        shape_volume = calculate_volume(Z, N, parameters)
-        volume_fix = calculate_volume_fixing_factor(Z, N, parameters)
+        sphere_volume = calculate_sphere_volume(number_of_protons, number_of_neutrons)
+        shape_volume = calculate_volume(number_of_protons, number_of_neutrons, parameters)
+        volume_fix = calculate_volume_fixing_factor(number_of_protons, number_of_neutrons, parameters)
 
         # Check if the volume calculation is correct
         volume_mismatch = False
-        shape_volume_integration = calculate_volume_by_integration(Z, N, parameters)
+        shape_volume_integration = calculate_volume_by_integration(number_of_protons, number_of_neutrons, parameters)
         if abs(sphere_volume - shape_volume_integration) > 1.0:
             volume_mismatch = True
 
@@ -465,17 +465,17 @@ def main():
         decrease_buttons[i].on_clicked(create_button_handler(slider, -1))
         increase_buttons[i].on_clicked(create_button_handler(slider, 1))
 
-    # Connect Z and N button handlers
-    btn_Z_decrease.on_clicked(create_button_handler(slider_Z, -1))
-    btn_Z_increase.on_clicked(create_button_handler(slider_Z, 1))
-    btn_N_decrease.on_clicked(create_button_handler(slider_N, -1))
-    btn_N_increase.on_clicked(create_button_handler(slider_N, 1))
+    # Connect number_of_protons and number_of_neutrons button handlers
+    btn_z_decrease.on_clicked(create_button_handler(slider_z, -1))
+    btn_z_increase.on_clicked(create_button_handler(slider_z, 1))
+    btn_n_decrease.on_clicked(create_button_handler(slider_n, -1))
+    btn_n_increase.on_clicked(create_button_handler(slider_n, 1))
 
     # Connect the update function to all sliders
     for slider in sliders:
         slider.on_changed(update)
-    slider_Z.on_changed(update)
-    slider_N.on_changed(update)
+    slider_z.on_changed(update)
+    slider_n.on_changed(update)
 
     # Update the plot once to show initial values
     update(None)
