@@ -285,8 +285,8 @@ def main():
     ax_n_decrease = plt.axes((0.16, 0.08, 0.04, 0.02))
     ax_n_increase = plt.axes((0.80, 0.08, 0.04, 0.02))
 
-    slider_z = Slider(ax=ax_z, label='number_of_protons', valmin=82, valmax=120, valinit=initial_z, valstep=1)
-    slider_n = Slider(ax=ax_n, label='number_of_neutrons', valmin=100, valmax=180, valinit=initial_n, valstep=1)
+    slider_z = Slider(ax=ax_z, label='Z', valmin=82, valmax=120, valinit=initial_z, valstep=1)
+    slider_n = Slider(ax=ax_n, label='N', valmin=100, valmax=180, valinit=initial_n, valstep=1)
 
     btn_z_decrease = Button(ax_z_decrease, '-')
     btn_z_increase = Button(ax_z_increase, '+')
