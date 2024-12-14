@@ -247,7 +247,7 @@ def find_neck_thickness(x_coords, y_coords, theta_vals):
     :return tuple: (neck_thickness, neck_x, neck_y) - the neck thickness and its coordinates
     """
     # Find indices corresponding to theta between 45 and 135 degrees
-    mask = (theta_vals >= np.pi / 4) & (theta_vals <= 3 * np.pi / 4)
+    mask = (theta_vals >= np.pi / 6) & (theta_vals <= 4 * np.pi / 6)
     relevant_x = x_coords[mask]
     relevant_y = y_coords[mask]
     # relevant_theta = theta_vals[mask]
