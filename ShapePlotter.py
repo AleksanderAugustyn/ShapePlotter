@@ -190,8 +190,8 @@ def calculate_radius(theta, parameters, Z, N):
     nuclear_radius = 1.16 * (A ** (1 / 3)) * radius_fix * radius
 
     # Check if the calculated radius is not negative
-    if np.any(nuclear_radius < 0):
-        print("Negative radius detected!")
+    # if np.any(nuclear_radius < 0):
+    #    print("Negative radius detected!")
 
     return nuclear_radius
 
@@ -266,7 +266,7 @@ def main():
     ax_plot.set_ylabel('Y (fm)', fontsize=18)
 
     # Create a text box for volume information
-    volume_text = ax_text.text(0.1, 0.5, '', fontsize=24)
+    volume_text = ax_text.text(0.1, 0.4, '', fontsize=24)
 
     # Create sliders and button pairs
     slider_height = 0.03
@@ -373,13 +373,19 @@ def main():
         if abs(sphere_volume - shape_volume_integration) > 1.0:
             print(f"Volume mismatch: {sphere_volume} vs {shape_volume_integration}")
 
+        # Check if the calculated radius is negative
+        negative_radius = False
+        if np.any(plot_radius < 0):
+            negative_radius = True
+
         volume_text.set_text(
             f'Sphere Volume: {sphere_volume:.2f} fm³\n'
             f'Shape Volume: {shape_volume:.2f} fm³\n'
             f'Volume Fixing Factor: {volume_fix:.4f}\n'
             f'Radius Fixing Factor: {volume_fix ** (1 / 3):.4f}\n'
             f'X Length: {x_length:.2f} fm\n'
-            f'Y Length: {y_length:.2f} fm'
+            f'Y Length: {y_length:.2f} fm\n' +
+            ('Negative radius detected!' if negative_radius else '')
         )
 
         fig.canvas.draw_idle()
