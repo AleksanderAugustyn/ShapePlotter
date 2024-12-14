@@ -338,6 +338,7 @@ def main():
     save_button = Button(ax=ax_save, label='Save Plot')
 
     def save_plot(_):
+        """Save the current plot to a file."""
         parameters = [s.val for s in sliders]
         Z = int(slider_Z.val)
         N = int(slider_N.val)
@@ -350,6 +351,17 @@ def main():
 
     # Function to find the nearest point on the curve to a given angle
     def find_nearest_point(plot_x, plot_y, angle):
+        """
+        Find the nearest point on the curve to a given angle.
+
+        Args:
+        :parameter plot_x (np.ndarray): The x-coordinates of the plot.
+        :parameter plot_y (np.ndarray): The y-coordinates of the plot.
+        :parameter angle (float): The target angle in radians.
+
+        Returns:
+        :return tuple: The x and y coordinates of the nearest point.
+        """
         # Calculate the angular difference between each point and the target angle
         angles = np.arctan2(plot_y, plot_x)
         angle_diff = np.abs(angles - angle)
@@ -361,6 +373,7 @@ def main():
 
     # Update function for the plot
     def update(_):
+        """Update the plot with new parameters."""
         parameters = [s.val for s in sliders]
         Z = int(slider_Z.val)
         N = int(slider_N.val)
@@ -426,6 +439,16 @@ def main():
 
     # Function to create button click handlers
     def create_button_handler(slider_counter, increment):
+        """
+        Create a button click handler for a slider.
+
+        Args:
+        :parameter slider_counter (Slider): The slider object.
+        :parameter increment (float): The increment value for the slider.
+
+        Returns:
+        :return function: The button click handler function.
+        """
         def handler(_):
             new_val = slider_counter.val + increment * slider_counter.valstep
             if slider_counter.valmin <= new_val <= slider_counter.valmax:
