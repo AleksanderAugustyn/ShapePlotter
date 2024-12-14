@@ -514,8 +514,8 @@ def main():
             f'Max Y Length: {max_y_length:.2f} fm\n'
             f'Length Along X Axis (red): {along_x_length:.2f} fm\n'
             f'Length Along Y Axis (blue): {along_y_length:.2f} fm\n'
-            f'Neck Thickness (45-135, green): {neck_thickness_45_135:.2f} fm\n'
-            f'Neck Thickness (30-150, purple): {neck_thickness_30_150:.2f} fm\n' +
+            f'Neck Thickness (45\N{DEGREE SIGN}-135\N{DEGREE SIGN}, green): {neck_thickness_45_135:.2f} fm\n'
+            f'Neck Thickness (30\N{DEGREE SIGN}-150\N{DEGREE SIGN}, purple): {neck_thickness_30_150:.2f} fm\n' +
             ('Negative radius detected!\n' if negative_radius else '') +
             (f'Volume mismatch detected!\n {sphere_volume:.4f} vs {shape_volume_integration:.4f} fm³\n'
              if volume_mismatch else '')
