@@ -364,7 +364,6 @@ def main():
         N = int(slider_N.val)
 
         plot_radius = calculate_radius(theta, parameters, Z, N)
-        plot_x = plot_radius * np.sin(theta)
         plot_x = plot_radius * np.cos(theta)
         plot_y = plot_radius * np.sin(theta)
         line.set_data(plot_x, plot_y)
@@ -383,14 +382,14 @@ def main():
 
         # Draw new axis lines
         ax_plot.x_axis_line = ax_plot.plot([x_axis_negative[0], x_axis_positive[0]], [x_axis_negative[1], x_axis_positive[1]], color='red')[0]
-        ax_plot.y_axis_line = ax_plot.plot([y_axis_negative[0], y_axis_positive[0]], [y_axis_negative[1], y_axis_positive[1]], color='red')[0]
+        ax_plot.y_axis_line = ax_plot.plot([y_axis_negative[0], y_axis_positive[0]], [y_axis_negative[1], y_axis_positive[1]], color='blue')[0]
 
         max_radius = np.max(np.abs(plot_radius)) * 1.5
         ax_plot.set_xlim(-max_radius, max_radius)
         ax_plot.set_ylim(-max_radius, max_radius)
 
-        max_x_length = np.max(plot_x) - np.min(plot_x)
-        max_y_length = np.max(plot_y) - np.min(plot_y)
+        max_x_length = np.max(plot_y) - np.min(plot_y)
+        max_y_length = np.max(plot_x) - np.min(plot_x)
 
         along_x_length = calculate_radius(0.0, parameters, Z, N) + calculate_radius(np.pi, parameters, Z, N)
         along_y_length = calculate_radius(np.pi / 2, parameters, Z, N) + calculate_radius(-np.pi / 2, parameters, Z, N)
@@ -416,8 +415,8 @@ def main():
             f'Radius Fixing Factor: {volume_fix ** (1 / 3):.4f}\n'
             f'Max X Length: {max_x_length:.2f} fm\n'
             f'Max Y Length: {max_y_length:.2f} fm\n'
-            f'Length Along X Axis: {along_x_length:.2f} fm\n'
-            f'Length Along Y Axis: {along_y_length:.2f} fm\n' +
+            f'Length Along X Axis (red): {along_x_length:.2f} fm\n'
+            f'Length Along Y Axis (blue): {along_y_length:.2f} fm\n' +
             ('Negative radius detected!' if negative_radius else '')
         )
 
