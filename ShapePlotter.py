@@ -1,3 +1,5 @@
+"""This script is used to plot the shape of a nucleus with volume conservation, using the beta parameter and spherical harmonics parametrization."""
+
 import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
@@ -293,7 +295,7 @@ def main():
 
     # Style settings for Z and N
     for slider in [slider_Z, slider_N]:
-        slider.label.set_size(18)
+        slider.label.set_fontsize(18)
         slider.valtext.set_size(18)
 
     # Create sliders for deformation parameters with buttons
@@ -335,7 +337,7 @@ def main():
     ax_save = plt.axes((0.8, 0.4, 0.1, 0.04))
     save_button = Button(ax=ax_save, label='Save Plot')
 
-    def save_plot(event):
+    def save_plot(_):
         parameters = [s.val for s in sliders]
         Z = int(slider_Z.val)
         N = int(slider_N.val)
@@ -358,7 +360,7 @@ def main():
         return plot_x[nearest_index], plot_y[nearest_index]
 
     # Update function for the plot
-    def update(val):
+    def update(_):
         parameters = [s.val for s in sliders]
         Z = int(slider_Z.val)
         N = int(slider_N.val)
@@ -424,7 +426,7 @@ def main():
 
     # Function to create button click handlers
     def create_button_handler(slider_counter, increment):
-        def handler(event):
+        def handler(_):
             new_val = slider_counter.val + increment * slider_counter.valstep
             if slider_counter.valmin <= new_val <= slider_counter.valmax:
                 slider_counter.set_val(new_val)
