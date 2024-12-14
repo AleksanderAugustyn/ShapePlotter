@@ -372,10 +372,10 @@ def main():
 
     def reset_values(_):
         """Reset all sliders to their initial values."""
-        for slider in sliders:
-            slider.set_val(slider.init)
-        slider_z.set_val(slider_z.init)
-        slider_n.set_val(slider_n.init)
+        for slider_counter in sliders:
+            slider_counter.set_val(slider.valinit)
+        slider_z.set_val(slider_z.valinit)
+        slider_n.set_val(slider_n.valinit)
 
     reset_button.on_clicked(reset_values)
 
