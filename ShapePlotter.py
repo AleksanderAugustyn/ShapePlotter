@@ -361,8 +361,11 @@ def main():
         ax_plot.set_xlim(-max_radius, max_radius)
         ax_plot.set_ylim(-max_radius, max_radius)
 
-        x_length = np.max(plot_x) - np.min(plot_x)
-        y_length = np.max(plot_y) - np.min(plot_y)
+        max_x_length = np.max(plot_x) - np.min(plot_x)
+        max_y_length = np.max(plot_y) - np.min(plot_y)
+
+        along_x_length = calculate_radius(0.0, parameters, Z, N) + calculate_radius(np.pi, parameters, Z, N)
+        along_y_length = calculate_radius(np.pi / 2, parameters, Z, N) + calculate_radius(-np.pi / 2, parameters, Z, N)
 
         sphere_volume = calculate_sphere_volume(Z, N)
         shape_volume = calculate_volume(Z, N, parameters)
@@ -383,8 +386,10 @@ def main():
             f'Shape Volume: {shape_volume:.2f} fm³\n'
             f'Volume Fixing Factor: {volume_fix:.4f}\n'
             f'Radius Fixing Factor: {volume_fix ** (1 / 3):.4f}\n'
-            f'X Length: {x_length:.2f} fm\n'
-            f'Y Length: {y_length:.2f} fm\n' +
+            f'Max X Length: {max_x_length:.2f} fm\n'
+            f'Max Y Length: {max_y_length:.2f} fm\n'
+            f'Length Along X Axis: {along_x_length:.2f} fm\n'
+            f'Length Along Y Axis: {along_y_length:.2f} fm\n' +
             ('Negative radius detected!' if negative_radius else '')
         )
 
