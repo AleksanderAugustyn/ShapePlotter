@@ -363,9 +363,21 @@ def main():
         decrease_buttons.append(btn_decrease)
         increase_buttons.append(btn_increase)
 
-    # Create a button for saving the plot
-    ax_save = plt.axes((0.8, 0.4, 0.1, 0.04))
+    # Create buttons for saving the plot and resetting values
+    ax_save = plt.axes((0.75, 0.4, 0.1, 0.04))
     save_button = Button(ax=ax_save, label='Save Plot')
+
+    ax_reset = plt.axes((0.86, 0.4, 0.1, 0.04))
+    reset_button = Button(ax=ax_reset, label='Reset')
+
+    def reset_values(_):
+        """Reset all sliders to their initial values."""
+        for slider in sliders:
+            slider.set_val(slider.init)
+        slider_z.set_val(slider_z.init)
+        slider_n.set_val(slider_n.init)
+
+    reset_button.on_clicked(reset_values)
 
     def save_plot(_):
         """Save the current plot to a file."""
