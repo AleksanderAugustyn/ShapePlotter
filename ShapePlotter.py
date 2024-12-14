@@ -189,7 +189,47 @@ def calculate_radius(theta, parameters, Z, N):
     A = Z + N
     nuclear_radius = 1.16 * (A ** (1 / 3)) * radius_fix * radius
 
+    # Check if the calculated radius is not negative
+    if np.any(nuclear_radius < 0):
+        print("Negative radius detected!")
+
     return nuclear_radius
+
+
+def calculate_volume_by_integration(Z, N, parameters):
+    """
+    Calculate the volume of the nucleus by numerical integration.
+
+    Args:
+    :parameter Z (int): Number of protons
+    :parameter N (int): Number of neutrons
+    :parameter parameters (tuple): Deformation parameters (beta10, beta20, ..., beta80)
+
+    Returns:
+    :return float: Volume in fm³
+    """
+    # Number of points for integration
+    n_theta = 200
+    n_phi = 200
+
+    # Integration variables
+    theta = np.linspace(0, np.pi, n_theta)
+    phi = np.linspace(0, 2 * np.pi, n_phi)
+    theta_mesh, phi_mesh = np.meshgrid(theta, phi)
+
+    # Calculate R(theta) for all theta values
+    R = calculate_radius(theta_mesh, parameters, Z, N)
+
+    # Volume element in spherical coordinates: r²sin(θ)drdθdφ
+    # Since we're integrating from 0 to R(θ,φ), the r integral gives us R³/3
+    integrand = (R ** 3 * np.sin(theta_mesh)) / 3
+
+    # Numerical integration using trapezoidal rule
+    volume = np.trapezoid(np.trapezoid(integrand, theta, axis=1), phi)
+
+    # print(volume)
+
+    return volume
 
 
 def main():
@@ -202,7 +242,7 @@ def main():
     ax_text = fig.add_subplot(122)
     ax_text.axis('off')
 
-    # Adjust the main plot area to make room for all sliders
+    # Adjust the main plot area to make room for all sliders and buttons
     plt.subplots_adjust(left=0.1, bottom=0.45, right=0.9, top=0.95)
 
     # Initial parameters
@@ -210,11 +250,11 @@ def main():
     initial_params = (0.0,) * num_harmonics
     initial_Z = 102
     initial_N = 154
-    theta = np.linspace(0, 2 * np.pi, 2000)  # Note: Changed to [0, π] for proper volume calculation
+    theta = np.linspace(0, 2 * np.pi, 2000)
 
     # Calculate and plot initial shape
     radius = calculate_radius(theta, initial_params, initial_Z, initial_N)
-    x = radius * np.sin(theta)  # Note: Using sin(θ) for x and cos(θ) for y to match standard convention
+    x = radius * np.sin(theta)
     y = radius * np.cos(theta)
     line, = ax_plot.plot(x, y)
 
@@ -228,45 +268,40 @@ def main():
     # Create a text box for volume information
     volume_text = ax_text.text(0.1, 0.5, '', fontsize=24)
 
-    # Create sliders for deformation parameters
+    # Create sliders and button pairs
     slider_height = 0.03
     sliders = []
+    decrease_buttons = []
+    increase_buttons = []
 
-    # Create sliders for Z and N
-    ax_Z = plt.axes((0.2, 0.05, 0.6, 0.02))
-    ax_N = plt.axes((0.2, 0.08, 0.6, 0.02))
+    # Create sliders for Z and N with buttons
+    ax_Z = plt.axes((0.25, 0.05, 0.5, 0.02))
+    ax_Z_decrease = plt.axes((0.16, 0.05, 0.04, 0.02))
+    ax_Z_increase = plt.axes((0.80, 0.05, 0.04, 0.02))
+
+    ax_N = plt.axes((0.25, 0.08, 0.5, 0.02))
+    ax_N_decrease = plt.axes((0.16, 0.08, 0.04, 0.02))
+    ax_N_increase = plt.axes((0.80, 0.08, 0.04, 0.02))
 
     slider_Z = Slider(ax=ax_Z, label='Z', valmin=82, valmax=120, valinit=initial_Z, valstep=1)
     slider_N = Slider(ax=ax_N, label='N', valmin=100, valmax=180, valinit=initial_N, valstep=1)
 
-    slider_Z.label.set_size(18)
-    slider_Z.valtext.set_size(18)
+    btn_Z_decrease = Button(ax_Z_decrease, '-')
+    btn_Z_increase = Button(ax_Z_increase, '+')
+    btn_N_decrease = Button(ax_N_decrease, '-')
+    btn_N_increase = Button(ax_N_increase, '+')
 
-    slider_N.label.set_size(18)
-    slider_N.valtext.set_size(18)
+    # Style settings for Z and N
+    for slider in [slider_Z, slider_N]:
+        slider.label.set_size(18)
+        slider.valtext.set_size(18)
 
-    # Create a button for saving the plot
-    ax_save = plt.axes((0.8, 0.4, 0.1, 0.04))
-    save_button = Button(ax=ax_save, label='Save Plot')
-
-    def save_plot(event):
-        """
-        Callback function to save the plot with a filename based on current parameters.
-        """
-        parameters = [plot_slider.val for plot_slider in sliders]
-        Z = int(slider_Z.val)
-        N = int(slider_N.val)
-        beta_values = "_".join(f"{p:.2f}" for p in parameters)
-        filename = f"{Z}_{N}_{beta_values}.png"
-        fig.savefig(filename)
-
-        print(f"Plot saved as {filename}")
-
-    save_button.on_clicked(save_plot)
-
-    # Create sliders for deformation parameters
+    # Create sliders for deformation parameters with buttons
     for i in range(num_harmonics):
-        ax = plt.axes((0.2, 0.11 + i * slider_height, 0.6, 0.02))
+        # Create axes for slider and buttons
+        ax_decrease = plt.axes((0.16, 0.11 + i * slider_height, 0.04, 0.02))
+        ax_slider = plt.axes((0.25, 0.11 + i * slider_height, 0.5, 0.02))
+        ax_increase = plt.axes((0.80, 0.11 + i * slider_height, 0.04, 0.02))
 
         # Special case for β20
         if i == 0:
@@ -277,7 +312,7 @@ def main():
             valmin, valmax = -1.0, 1.0
 
         slider = Slider(
-            ax=ax,
+            ax=ax_slider,
             label=f'β{i + 1}0',
             valmin=valmin,
             valmax=valmax,
@@ -285,36 +320,58 @@ def main():
             valstep=0.01
         )
 
+        # Create buttons
+        btn_decrease = Button(ax_decrease, '-')
+        btn_increase = Button(ax_increase, '+')
+
         slider.label.set_size(18)
         slider.valtext.set_size(18)
 
         sliders.append(slider)
+        decrease_buttons.append(btn_decrease)
+        increase_buttons.append(btn_increase)
+
+    # Create a button for saving the plot
+    ax_save = plt.axes((0.8, 0.4, 0.1, 0.04))
+    save_button = Button(ax=ax_save, label='Save Plot')
+
+    def save_plot(event):
+        parameters = [s.val for s in sliders]
+        Z = int(slider_Z.val)
+        N = int(slider_N.val)
+        beta_values = "_".join(f"{p:.2f}" for p in parameters)
+        filename = f"{Z}_{N}_{beta_values}.png"
+        fig.savefig(filename)
+        print(f"Plot saved as {filename}")
+
+    save_button.on_clicked(save_plot)
 
     # Update function for the plot
     def update(val):
-        parameters = [plot_slider.val for plot_slider in sliders]
+        parameters = [s.val for s in sliders]
         Z = slider_Z.val
         N = slider_N.val
 
         plot_radius = calculate_radius(theta, parameters, Z, N)
         plot_x = plot_radius * np.sin(theta)
-        plot_y = (plot_radius * np.cos(theta))
+        plot_y = plot_radius * np.cos(theta)
         line.set_data(plot_x, plot_y)
 
-        # Update plot limits to accommodate shape changes
-        # Update plot limits to accommodate shape changes
         max_radius = np.max(np.abs(plot_radius)) * 1.5
         ax_plot.set_xlim(-max_radius, max_radius)
         ax_plot.set_ylim(-max_radius, max_radius)
 
-        # Calculate the lengths of the shape in the X and Y axes
         x_length = np.max(plot_x) - np.min(plot_x)
         y_length = np.max(plot_y) - np.min(plot_y)
 
-        # Update volume information
         sphere_volume = calculate_sphere_volume(Z, N)
         shape_volume = calculate_volume(Z, N, parameters)
         volume_fix = calculate_volume_fixing_factor(Z, N, parameters)
+
+        # Check if the volume calculation is correct
+        shape_volume_integration = calculate_volume_by_integration(Z, N, parameters)
+        if abs(sphere_volume - shape_volume_integration) > 1.0:
+            print(f"Volume mismatch: {sphere_volume} vs {shape_volume_integration}")
 
         volume_text.set_text(
             f'Sphere Volume: {sphere_volume:.2f} fm³\n'
@@ -326,6 +383,26 @@ def main():
         )
 
         fig.canvas.draw_idle()
+
+    # Function to create button click handlers
+    def create_button_handler(slider_counter, increment):
+        def handler(event):
+            new_val = slider_counter.val + increment * slider_counter.valstep
+            if slider_counter.valmin <= new_val <= slider_counter.valmax:
+                slider_counter.set_val(new_val)
+
+        return handler
+
+    # Connect button click handlers
+    for i, slider in enumerate(sliders):
+        decrease_buttons[i].on_clicked(create_button_handler(slider, -1))
+        increase_buttons[i].on_clicked(create_button_handler(slider, 1))
+
+    # Connect Z and N button handlers
+    btn_Z_decrease.on_clicked(create_button_handler(slider_Z, -1))
+    btn_Z_increase.on_clicked(create_button_handler(slider_Z, 1))
+    btn_N_decrease.on_clicked(create_button_handler(slider_N, -1))
+    btn_N_increase.on_clicked(create_button_handler(slider_N, 1))
 
     # Connect the update function to all sliders
     for slider in sliders:
