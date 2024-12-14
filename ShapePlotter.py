@@ -346,16 +346,44 @@ def main():
 
     save_button.on_clicked(save_plot)
 
+    # Function to find the nearest point on the curve to a given angle
+    def find_nearest_point(plot_x, plot_y, angle):
+        # Calculate the angular difference between each point and the target angle
+        angles = np.arctan2(plot_y, plot_x)
+        angle_diff = np.abs(angles - angle)
+
+        # Find the index of the point with the smallest angular difference
+        nearest_index = np.argmin(angle_diff)
+
+        return plot_x[nearest_index], plot_y[nearest_index]
+
     # Update function for the plot
     def update(val):
         parameters = [s.val for s in sliders]
-        Z = slider_Z.val
-        N = slider_N.val
+        Z = int(slider_Z.val)
+        N = int(slider_N.val)
 
         plot_radius = calculate_radius(theta, parameters, Z, N)
         plot_x = plot_radius * np.sin(theta)
-        plot_y = plot_radius * np.cos(theta)
+        plot_x = plot_radius * np.cos(theta)
+        plot_y = plot_radius * np.sin(theta)
         line.set_data(plot_x, plot_y)
+
+        # Find intersection points with the x and y axes
+        x_axis_positive = find_nearest_point(plot_x, plot_y, 0)
+        x_axis_negative = find_nearest_point(plot_x, plot_y, np.pi)
+        y_axis_positive = find_nearest_point(plot_x, plot_y, np.pi / 2)
+        y_axis_negative = find_nearest_point(plot_x, plot_y, -np.pi / 2)
+
+        # Remove previous axis lines if they exist
+        if hasattr(ax_plot, 'x_axis_line'):
+            ax_plot.x_axis_line.remove()
+        if hasattr(ax_plot, 'y_axis_line'):
+            ax_plot.y_axis_line.remove()
+
+        # Draw new axis lines
+        ax_plot.x_axis_line = ax_plot.plot([x_axis_negative[0], x_axis_positive[0]], [x_axis_negative[1], x_axis_positive[1]], color='red')[0]
+        ax_plot.y_axis_line = ax_plot.plot([y_axis_negative[0], y_axis_positive[0]], [y_axis_negative[1], y_axis_positive[1]], color='red')[0]
 
         max_radius = np.max(np.abs(plot_radius)) * 1.5
         ax_plot.set_xlim(-max_radius, max_radius)
