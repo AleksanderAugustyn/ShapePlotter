@@ -414,9 +414,10 @@ def main():
         volume_fix = calculate_volume_fixing_factor(Z, N, parameters)
 
         # Check if the volume calculation is correct
+        volume_mismatch = False
         shape_volume_integration = calculate_volume_by_integration(Z, N, parameters)
         if abs(sphere_volume - shape_volume_integration) > 1.0:
-            print(f"Volume mismatch: {sphere_volume} vs {shape_volume_integration}")
+            volume_mismatch = True
 
         # Check if the calculated radius is negative
         negative_radius = False
@@ -424,15 +425,16 @@ def main():
             negative_radius = True
 
         volume_text.set_text(
-            f'Sphere Volume: {sphere_volume:.2f} fm³\n'
-            f'Shape Volume: {shape_volume:.2f} fm³\n'
+            f'Sphere Volume: {sphere_volume:.4f} fm³\n'
+            f'Shape Volume: {shape_volume:.4f} fm³\n'
             f'Volume Fixing Factor: {volume_fix:.4f}\n'
             f'Radius Fixing Factor: {volume_fix ** (1 / 3):.4f}\n'
             f'Max X Length: {max_x_length:.2f} fm\n'
             f'Max Y Length: {max_y_length:.2f} fm\n'
             f'Length Along X Axis (red): {along_x_length:.2f} fm\n'
             f'Length Along Y Axis (blue): {along_y_length:.2f} fm\n' +
-            ('Negative radius detected!' if negative_radius else '')
+            ('Negative radius detected!\n' if negative_radius else '') +
+            ('Volume mismatch detected!\n' + f' {sphere_volume:.4f} vs {shape_volume_integration:.4f} fm³' if volume_mismatch else '')
         )
 
         fig.canvas.draw_idle()
@@ -449,7 +451,9 @@ def main():
         Returns:
         :return function: The button click handler function.
         """
+
         def handler(_):
+            """Handle the button click event."""
             new_val = slider_counter.val + increment * slider_counter.valstep
             if slider_counter.valmin <= new_val <= slider_counter.valmax:
                 slider_counter.set_val(new_val)
