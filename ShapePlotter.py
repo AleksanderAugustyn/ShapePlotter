@@ -1,9 +1,10 @@
 """This script is used to plot the shape of a nucleus with volume conservation, using the beta parameter and spherical harmonics parametrization."""
 
 import matplotlib
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider, Button
+import numpy as np
+from matplotlib.widgets import Button, Slider
+from scipy import integrate
 from scipy.special import sph_harm
 
 matplotlib.use('TkAgg')
@@ -227,7 +228,7 @@ def calculate_volume_by_integration(number_of_protons, number_of_neutrons, param
     integrand = (r ** 3 * np.sin(theta_mesh)) / 3
 
     # Numerical integration using trapezoidal rule
-    volume = np.trapezoid(np.trapezoid(integrand, theta, axis=1), phi)
+    volume = integrate.trapezoid(integrate.trapezoid(integrand, theta, axis=1), phi)
 
     # print(volume)
 
