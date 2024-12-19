@@ -133,11 +133,11 @@ def main():
     plt.subplots_adjust(left=0.1, bottom=0.48, right=0.9, top=0.98)
 
     # Add text for keyboard input instructions
-    ax_text.text(0.1, 0.35, 'Keyboard Input Format (works with Ctrl+V):\nZ N β10 β20 β30 β40 β50 β60 β70 β80 β90 β100 β110 β120\nExample: 102 154 0.0 0.5 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0',
+    ax_text.text(0.1, 0.25, 'Keyboard Input Format (works with Ctrl+V):\nZ N β10 β20 β30 β40 β50 β60 β70 β80 β90 β100 β110 β120\nExample: 102 154 0.0 0.5 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0',
                  fontsize=12, verticalalignment='top')
 
     # Add error message text (initially empty)
-    error_text = ax_text.text(0.1, 0.20, '', color='red', fontsize=12, verticalalignment='top')
+    error_text = ax_text.text(0.1, 0.15, '', color='red', fontsize=12, verticalalignment='top')
 
     # Initial parameters
     num_harmonics = 12
@@ -160,7 +160,7 @@ def main():
     ax_plot.set_ylabel('Y (fm)', fontsize=18)
 
     # Create a text box for volume information
-    volume_text = ax_text.text(0.1, 0.4, '', fontsize=24)
+    volume_text = ax_text.text(0.1, 0.25, '', fontsize=24)
 
     # Create sliders and button pairs
     slider_height = 0.03
@@ -392,11 +392,6 @@ def main():
         shape_volume_integration = calculate_volume_by_integration(number_of_protons, number_of_neutrons, parameters)
         if abs(sphere_volume - shape_volume_integration) > 1.0:
             volume_mismatch = True
-            
-        # Check volume conservation
-        fixed_volume = shape_volume * volume_fix
-        if abs(sphere_volume - fixed_volume) > 1.0:
-            volume_mismatch = True
 
         negative_radius = False
         if np.any(plot_radius < 0):
@@ -408,15 +403,15 @@ def main():
             f'Shape Volume: {shape_volume:.4f} fm³\n'
             f'Volume Fixing Factor: {volume_fix:.8f}\n'
             f'Radius Fixing Factor: {volume_fix ** (1 / 3):.8f}\n'
+            f'Integrated Volume: {shape_volume_integration:.4f} fm³\n'
+            f'Volume Conservation: {"✓" if not volume_mismatch else f"✗: {sphere_volume:.4f} vs {shape_volume_integration:.4f} fm³"}\n'
             f'Max X Length: {max_x_length:.2f} fm\n'
             f'Max Y Length: {max_y_length:.2f} fm\n'
             f'Length Along X Axis (red): {along_x_length:.2f} fm\n'
             f'Length Along Y Axis (blue): {along_y_length:.2f} fm\n'
             f'Neck Thickness (45°-135°, green): {neck_thickness_45_135:.2f} fm\n'
             f'Neck Thickness (30°-150°, purple): {neck_thickness_30_150:.2f} fm\n' +
-            ('Negative radius detected!\n' if negative_radius else '') +
-            (f'Volume mismatch detected!\n {sphere_volume:.4f} vs {shape_volume_integration:.4f} fm³\n'
-             if volume_mismatch else '')
+            ('Negative radius detected!\n' if negative_radius else '')
         )
 
         # Update the legend
