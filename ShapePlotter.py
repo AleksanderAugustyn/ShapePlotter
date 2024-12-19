@@ -3,7 +3,7 @@
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.widgets import Button, Slider
+from matplotlib.widgets import Button, Slider, TextBox
 from scipy import integrate
 from scipy.special import sph_harm
 
@@ -78,7 +78,7 @@ def calculate_volume(number_of_protons, number_of_neutrons, parameters):
             beta50 ** 2 + beta60 ** 2 + beta70 ** 2 + beta80 ** 2
     )
 
-    # Beta10 related terms
+    # Beta10 and Beta20 related terms
     beta10_term = 437 * beta10 * (
             21879 * np.sqrt(105) * beta20 * beta30 +
             48620 * np.sqrt(21) * beta30 * beta40 +
@@ -90,7 +90,6 @@ def calculate_volume(number_of_protons, number_of_neutrons, parameters):
             )
     )
 
-    # Beta20 related terms
     beta20_term = 23 * beta20 * (
             646646 * np.sqrt(5) * beta30 ** 2 +
             629850 * np.sqrt(5) * beta40 ** 2 +
@@ -114,172 +113,74 @@ def calculate_volume(number_of_protons, number_of_neutrons, parameters):
 
     # Final calculation
     volume = base_coefficient * number_of_nucleons * r0 ** 3 * total
-
-    # print(volume)
-
     return volume
 
 
 def calculate_sphere_volume(number_of_protons, number_of_neutrons):
-    """
-    Calculate the volume of a spherical nucleus.
-
-    Args:
-    :parameter    Z (int): The number of protons.
-    :parameter    N (int): The number of neutrons.
-
-    Returns:
-    :return    float: The calculated volume of the spherical nucleus.
-    """
-    sphere_volume = 4 / 3 * np.pi * (number_of_protons + number_of_neutrons) * r0 ** 3
-
-    # print(sphere_volume)
-
-    return sphere_volume
+    """Calculate the volume of a spherical nucleus."""
+    return 4 / 3 * np.pi * (number_of_protons + number_of_neutrons) * r0 ** 3
 
 
 def calculate_volume_fixing_factor(number_of_protons, number_of_neutrons, parameters):
-    """
-    Calculate the volume fixing factor to conserve volume.
-
-    Args:
-    :parameter    Z (int): The number of protons.
-    :parameter    N (int): The number of neutrons.
-    :parameter    parameters (tuple): A tuple of deformation parameters.
-
-    Returns:
-    :return    float: The volume fixing factor.
-    """
-    # Calculate the volume of the initial shape
+    """Calculate the volume fixing factor to conserve volume."""
     initial_volume = calculate_volume(number_of_protons, number_of_neutrons, parameters)
-
-    # Calculate the volume of the sphere
     sphere_volume = calculate_sphere_volume(number_of_protons, number_of_neutrons)
-
-    # Calculate the volume fixing factor
-    volume_fix = (sphere_volume / initial_volume)
-
-    # print(volume_fix)
-
-    return volume_fix
+    return sphere_volume / initial_volume
 
 
 def calculate_radius(theta, parameters, number_of_protons, number_of_neutrons):
-    """
-    Calculate the nuclear radius as a function of polar angle theta.
-
-    Args:
-    :parameter    theta (np.ndarray): An array of polar angles.
-    :parameter    parameters (tuple): number_of_nucleons tuple of deformation parameters.
-    :parameter    Z (int): The number of protons.
-    :parameter    N (int): The number of neutrons.
-
-    Returns:
-    :return    np.ndarray: The calculated nuclear radius for each theta.
-    """
-    # Base shape from spherical harmonics
+    """Calculate the nuclear radius as a function of polar angle theta."""
     radius = np.ones_like(theta)
 
     for harmonic_index in range(1, 9):
-        # Using only the m=0 harmonics (axially symmetric)
         harmonic = np.real(sph_harm(0, harmonic_index, 0, theta))
         radius += parameters[harmonic_index - 1] * harmonic
 
-    # Calculate radius correction factor
     radius_fix = calculate_volume_fixing_factor(number_of_protons, number_of_neutrons, parameters) ** (1 / 3)
-
-    # Apply number_of_nucleons^(1/3) scaling and volume conservation
     number_of_nucleons = number_of_protons + number_of_neutrons
-    nuclear_radius = 1.16 * (number_of_nucleons ** (1 / 3)) * radius_fix * radius
-
-    # Check if the calculated radius is not negative
-    # if np.any(nuclear_radius < 0):
-    #    print("Negative radius detected!")
-
-    return nuclear_radius
+    return 1.16 * (number_of_nucleons ** (1 / 3)) * radius_fix * radius
 
 
 def calculate_volume_by_integration(number_of_protons, number_of_neutrons, parameters):
-    """
-    Calculate the volume of the nucleus by numerical integration.
-
-    Args:
-    :parameter Z (int): Number of protons
-    :parameter N (int): Number of neutrons
-    :parameter parameters (tuple): Deformation parameters (beta10, beta20, ..., beta80)
-
-    Returns:
-    :return float: Volume in fm³
-    """
-    # Number of points for integration
-    n_theta = 200
-    n_phi = 200
-
-    # Integration variables
+    """Calculate the volume of the nucleus by numerical integration."""
+    n_theta, n_phi = 200, 200
     theta = np.linspace(0, np.pi, n_theta)
     phi = np.linspace(0, 2 * np.pi, n_phi)
     theta_mesh, phi_mesh = np.meshgrid(theta, phi)
 
-    # Calculate r(theta) for all theta values
     r = calculate_radius(theta_mesh, parameters, number_of_protons, number_of_neutrons)
-
-    # Volume element in spherical coordinates: r²sin(θ)drdθdφ
-    # Since we're integrating from 0 to r(θ,φ), the r integral gives us r³/3
     integrand = (r ** 3 * np.sin(theta_mesh)) / 3
 
-    # Numerical integration using trapezoidal rule
-    volume = integrate.trapezoid(integrate.trapezoid(integrand, theta, axis=1), phi)
-
-    # print(volume)
-
-    return volume
+    return integrate.trapezoid(integrate.trapezoid(integrand, theta, axis=1), phi)
 
 
 def find_neck_thickness(x_coords, y_coords, theta_vals, degree_range):
-    """
-    Find the neck thickness - shortest distance from x-axis between specified degree range.
-
-    Args:
-    :parameter x_coords (np.ndarray): x coordinates of the nuclear shape
-    :parameter y_coords (np.ndarray): y coordinates of the nuclear shape
-    :parameter theta_vals (np.ndarray): theta values used for plotting
-    :parameter degree_range (tuple): (start_degree, end_degree) for neck calculation
-
-    Returns:
-    :return tuple: (neck_thickness, neck_x, neck_y) - the neck thickness and its coordinates
-    """
-    # Convert degree range to radians
+    """Find the neck thickness between specified degree range."""
     start_rad, end_rad = np.radians(degree_range)
-
-    # Find indices corresponding to theta within the specified degree range
     mask = (theta_vals >= start_rad) & (theta_vals <= end_rad)
     relevant_x = x_coords[mask]
     relevant_y = y_coords[mask]
 
-    # Calculate distances from x-axis (absolute y values)
     distances = np.abs(relevant_y)
-
-    # Find the minimum distance and its index
     neck_idx = np.argmin(distances)
-    neck_thickness = distances[neck_idx] * 2  # Multiply by 2 for full thickness
-    neck_x = relevant_x[neck_idx]
-    neck_y = relevant_y[neck_idx]
+    neck_thickness = distances[neck_idx] * 2
 
-    return neck_thickness, neck_x, neck_y
+    return neck_thickness, relevant_x[neck_idx], relevant_y[neck_idx]
 
 
 def main():
-    """
-    Main function to create and display the nuclear shape plot with neck thickness calculation.
-    """
+    """Main function to create and display the nuclear shape plot."""
     # Set up the figure
     fig = plt.figure(figsize=(15, 8))
     ax_plot = fig.add_subplot(121)
     ax_text = fig.add_subplot(122)
     ax_text.axis('off')
 
-    # Adjust the main plot area to make room for all sliders and buttons
     plt.subplots_adjust(left=0.1, bottom=0.45, right=0.9, top=0.95)
+
+    # Add text for keyboard input instructions
+    ax_text.text(0.1, 0.35, 'Keyboard Input Format:\nZ N β10 β20 β30 β40 β50 β60 β70 β80\nExample: 102 154 0.0 0.5 0.0 0.0 0.0 0.0 0.0 0.0',
+                 fontsize=12, verticalalignment='top')
 
     # Initial parameters
     num_harmonics = 8
@@ -310,7 +211,7 @@ def main():
     decrease_buttons = []
     increase_buttons = []
 
-    # Create sliders for protons and neutrons with buttons
+    # Create sliders for protons and neutrons
     ax_z = plt.axes((0.25, 0.05, 0.5, 0.02))
     ax_z_decrease = plt.axes((0.16, 0.05, 0.04, 0.02))
     ax_z_increase = plt.axes((0.80, 0.05, 0.04, 0.02))
@@ -322,30 +223,23 @@ def main():
     slider_z = Slider(ax=ax_z, label='Z', valmin=82, valmax=120, valinit=initial_z, valstep=1)
     slider_n = Slider(ax=ax_n, label='N', valmin=100, valmax=180, valinit=initial_n, valstep=1)
 
+    slider_z.label.set_fontsize(18)
+    slider_z.valtext.set_fontsize(18)
+    slider_n.label.set_fontsize(18)
+    slider_n.valtext.set_fontsize(18)
+
     btn_z_decrease = Button(ax_z_decrease, '-')
     btn_z_increase = Button(ax_z_increase, '+')
     btn_n_decrease = Button(ax_n_decrease, '-')
     btn_n_increase = Button(ax_n_increase, '+')
 
-    # Style settings for protons and neutrons
-    for slider in [slider_z, slider_n]:
-        slider.label.set_fontsize(18)
-        slider.valtext.set_fontsize(18)
-
-    # Create sliders for deformation parameters with buttons
+    # Create sliders for deformation parameters
     for i in range(num_harmonics):
-        # Create axes for slider and buttons
         ax_decrease = plt.axes((0.16, 0.11 + i * slider_height, 0.04, 0.02))
         ax_slider = plt.axes((0.25, 0.11 + i * slider_height, 0.5, 0.02))
         ax_increase = plt.axes((0.80, 0.11 + i * slider_height, 0.04, 0.02))
 
-        # Special case for β20
-        if i == 0:
-            valmin, valmax = -1.6, 1.6
-        elif i == 1:
-            valmin, valmax = 0.0, 3.0
-        else:
-            valmin, valmax = -1.0, 1.0
+        valmin, valmax = (-1.6, 1.6) if i == 0 else (0.0, 3.0) if i == 1 else (-1.0, 1.0)
 
         slider = Slider(
             ax=ax_slider,
@@ -356,7 +250,6 @@ def main():
             valstep=0.01
         )
 
-        # Create buttons
         btn_decrease = Button(ax_decrease, '-')
         btn_increase = Button(ax_increase, '+')
 
@@ -367,21 +260,58 @@ def main():
         decrease_buttons.append(btn_decrease)
         increase_buttons.append(btn_increase)
 
-    # Create buttons for saving the plot and resetting values
+    # Create save and reset buttons
     ax_save = plt.axes((0.75, 0.4, 0.1, 0.04))
     save_button = Button(ax=ax_save, label='Save Plot')
 
     ax_reset = plt.axes((0.86, 0.4, 0.1, 0.04))
     reset_button = Button(ax=ax_reset, label='Reset')
 
+    # Create text input field and submit button for parameters
+    ax_input = plt.axes((0.25, 0.35, 0.5, 0.02))
+    text_box = TextBox(ax_input, 'Parameters', initial='')
+    text_box.label.set_fontsize(12)
+
+    ax_submit = plt.axes((0.80, 0.35, 0.1, 0.02))
+    submit_button = Button(ax_submit, 'Submit')
+
     def reset_values(_):
         """Reset all sliders to their initial values."""
-        for slider_counter in sliders:
-            slider_counter.set_val(slider.valinit)
-        slider_z.set_val(slider_z.valinit)
-        slider_n.set_val(slider_n.valinit)
+        for slider in sliders:
+            slider.set_val(0.0)
+        slider_z.set_val(initial_z)
+        slider_n.set_val(initial_n)
+        text_box.set_val('')
 
-    reset_button.on_clicked(reset_values)
+    def submit_parameters(_):
+        """Handle parameter submission from text input."""
+        try:
+            # Parse input string - expecting format: "Z N beta10 beta20 beta30 beta40 beta50 beta60 beta70 beta80"
+            values = [float(x) for x in text_box.text.split()]
+            if len(values) != 10:  # 2 for Z,N + 8 for betas
+                raise ValueError("Expected 10 values: Z N beta10 beta20 beta30 beta40 beta50 beta60 beta70 beta80")
+
+            # Validate Z and N ranges
+            if not (82 <= values[0] <= 120 and 100 <= values[1] <= 180):
+                raise ValueError("Z must be between 82-120 and N between 100-180")
+
+            # Update Z and N sliders
+            slider_z.set_val(int(values[0]))
+            slider_n.set_val(int(values[1]))
+
+            # Update beta parameter sliders
+            for i, slider in enumerate(sliders):
+                if not (slider.valmin <= values[i + 2] <= slider.valmax):
+                    raise ValueError(f"β{i + 1}0 must be between {slider.valmin} and {slider.valmax}")
+                slider.set_val(values[i + 2])
+
+            # Clear the text box after successful submission
+            text_box.set_val('')
+            print("Parameters successfully updated")
+
+        except (ValueError, IndexError) as e:
+            print(f"Error: {str(e)}")
+            print("Please use format: Z N beta10 beta20 beta30 beta40 beta50 beta60 beta70 beta80")
 
     def save_plot(_):
         """Save the current plot to a file."""
@@ -393,28 +323,11 @@ def main():
         fig.savefig(filename)
         print(f"Plot saved as {filename}")
 
-    save_button.on_clicked(save_plot)
-
-    # Function to find the nearest point on the curve to a given angle
     def find_nearest_point(plot_x, plot_y, angle):
-        """
-        Find the nearest point on the curve to a given angle.
-
-        Args:
-        :parameter plot_x (np.ndarray): The x-coordinates of the plot.
-        :parameter plot_y (np.ndarray): The y-coordinates of the plot.
-        :parameter angle (float): The target angle in radians.
-
-        Returns:
-        :return tuple: The x and y coordinates of the nearest point.
-        """
-        # Calculate the angular difference between each point and the target angle
+        """Find the nearest point on the curve to a given angle."""
         angles = np.arctan2(plot_y, plot_x)
         angle_diff = np.abs(angles - angle)
-
-        # Find the index of the point with the smallest angular difference
         nearest_index = np.argmin(angle_diff)
-
         return plot_x[nearest_index], plot_y[nearest_index]
 
     def update(_):
@@ -440,16 +353,19 @@ def main():
                 getattr(ax_plot, attr).remove()
 
         # Draw axis lines
-        ax_plot.x_axis_line = ax_plot.plot([x_axis_negative[0], x_axis_positive[0]],
-                                           [x_axis_negative[1], x_axis_positive[1]],
-                                           color='red')[0]
+        ax_plot.x_axis_line = ax_plot.plot(
+            [x_axis_negative[0], x_axis_positive[0]],
+            [x_axis_negative[1], x_axis_positive[1]],
+            color='red'
+        )[0]
+
         ax_plot.y_axis_line = ax_plot.plot(
             [y_axis_negative[0], y_axis_positive[0]],
             [y_axis_negative[1], y_axis_positive[1]],
             color='blue'
         )[0]
 
-        # Calculate and draw necks for different degree ranges
+        # Calculate and draw necks
         neck_thickness_45_135, neck_x_45_135, neck_y_45_135 = find_neck_thickness(
             plot_x, plot_y, theta, (45, 135)
         )
@@ -470,6 +386,7 @@ def main():
             linewidth=2,
             label='Neck (45-135)'
         )[0]
+
         ax_plot.neck_line_30_150 = ax_plot.plot(
             [neck_x_30_150, neck_x_30_150],
             [-neck_thickness_30_150 / 2, neck_thickness_30_150 / 2],
@@ -478,29 +395,30 @@ def main():
             label='Neck (30-150)'
         )[0]
 
+        # Update plot limits
         max_radius = np.max(np.abs(plot_radius)) * 1.5
         ax_plot.set_xlim(-max_radius, max_radius)
         ax_plot.set_ylim(-max_radius, max_radius)
 
+        # Calculate lengths
         max_x_length = np.max(plot_y) - np.min(plot_y)
         max_y_length = np.max(plot_x) - np.min(plot_x)
+        along_x_length = calculate_radius(0.0, parameters, number_of_protons, number_of_neutrons) + \
+                         calculate_radius(np.pi, parameters, number_of_protons, number_of_neutrons)
+        along_y_length = calculate_radius(np.pi / 2, parameters, number_of_protons, number_of_neutrons) + \
+                         calculate_radius(-np.pi / 2, parameters, number_of_protons, number_of_neutrons)
 
-        along_x_length = calculate_radius(0.0, parameters, number_of_protons, number_of_neutrons) + calculate_radius(np.pi, parameters, number_of_protons, number_of_neutrons)
-        along_y_length = calculate_radius(
-            np.pi / 2, parameters, number_of_protons, number_of_neutrons
-        ) + calculate_radius(-np.pi / 2, parameters, number_of_protons, number_of_neutrons)
-
+        # Calculate volumes
         sphere_volume = calculate_sphere_volume(number_of_protons, number_of_neutrons)
         shape_volume = calculate_volume(number_of_protons, number_of_neutrons, parameters)
         volume_fix = calculate_volume_fixing_factor(number_of_protons, number_of_neutrons, parameters)
 
-        # Check volume calculation
+        # Check calculations
         volume_mismatch = False
         shape_volume_integration = calculate_volume_by_integration(number_of_protons, number_of_neutrons, parameters)
         if abs(sphere_volume - shape_volume_integration) > 1.0:
             volume_mismatch = True
 
-        # Check for negative radius
         negative_radius = False
         if np.any(plot_radius < 0):
             negative_radius = True
@@ -515,8 +433,8 @@ def main():
             f'Max Y Length: {max_y_length:.2f} fm\n'
             f'Length Along X Axis (red): {along_x_length:.2f} fm\n'
             f'Length Along Y Axis (blue): {along_y_length:.2f} fm\n'
-            f'Neck Thickness (45\N{DEGREE SIGN}-135\N{DEGREE SIGN}, green): {neck_thickness_45_135:.2f} fm\n'
-            f'Neck Thickness (30\N{DEGREE SIGN}-150\N{DEGREE SIGN}, purple): {neck_thickness_30_150:.2f} fm\n' +
+            f'Neck Thickness (45°-135°, green): {neck_thickness_45_135:.2f} fm\n'
+            f'Neck Thickness (30°-150°, purple): {neck_thickness_30_150:.2f} fm\n' +
             ('Negative radius detected!\n' if negative_radius else '') +
             (f'Volume mismatch detected!\n {sphere_volume:.4f} vs {shape_volume_integration:.4f} fm³\n'
              if volume_mismatch else '')
@@ -524,22 +442,11 @@ def main():
 
         # Update the legend
         ax_plot.legend(fontsize='small', loc='upper right')
-
         fig.canvas.draw_idle()
 
     # Function to create button click handlers
     def create_button_handler(slider_obj, increment):
-        """
-        :param slider_obj:
-        :param increment:
-        :return:
-        """
-
         def handler(_):
-            """
-            :param _:
-            :return:
-            """
             new_val = slider_obj.val + increment * slider_obj.valstep
             if slider_obj.valmin <= new_val <= slider_obj.valmax:
                 slider_obj.set_val(new_val)
@@ -557,7 +464,12 @@ def main():
     btn_n_decrease.on_clicked(create_button_handler(slider_n, -1))
     btn_n_increase.on_clicked(create_button_handler(slider_n, 1))
 
-    # Connect update function to all sliders
+    # Connect all control buttons
+    submit_button.on_clicked(submit_parameters)
+    save_button.on_clicked(save_plot)
+    reset_button.on_clicked(reset_values)
+
+    # Connect slider update functions
     for slider in sliders:
         slider.on_changed(update)
     slider_z.on_changed(update)
