@@ -132,7 +132,7 @@ def calculate_radius(theta, parameters, number_of_protons, number_of_neutrons):
     """Calculate the nuclear radius as a function of polar angle theta."""
     radius = np.ones_like(theta)
 
-    for harmonic_index in range(1, 9):
+    for harmonic_index in range(1, 13):
         harmonic = np.real(sph_harm(0, harmonic_index, 0, theta))
         radius += parameters[harmonic_index - 1] * harmonic
 
@@ -179,14 +179,14 @@ def main():
     plt.subplots_adjust(left=0.1, bottom=0.45, right=0.9, top=0.95)
 
     # Add text for keyboard input instructions
-    ax_text.text(0.1, 0.35, 'Keyboard Input Format:\nZ N β10 β20 β30 β40 β50 β60 β70 β80\nExample: 102 154 0.0 0.5 0.0 0.0 0.0 0.0 0.0 0.0',
+    ax_text.text(0.1, 0.35, 'Keyboard Input Format:\nZ N β10 β20 β30 β40 β50 β60 β70 β80 β90 β100 β110 β120\nExample: 102 154 0.0 0.5 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0',
                  fontsize=12, verticalalignment='top')
     
     # Add error message text (initially empty)
     error_text = ax_text.text(0.1, 0.25, '', color='red', fontsize=12, verticalalignment='top')
 
     # Initial parameters
-    num_harmonics = 8
+    num_harmonics = 12
     initial_params = (0.0,) * num_harmonics
     initial_z = 102
     initial_n = 154
@@ -291,8 +291,8 @@ def main():
         try:
             # Parse input string - expecting format: "Z N beta10 beta20 beta30 beta40 beta50 beta60 beta70 beta80"
             values = [float(x) for x in text_box.text.split()]
-            if len(values) != 10:  # 2 for Z,N + 8 for betas
-                raise ValueError("Expected 10 values: Z N beta10 beta20 beta30 beta40 beta50 beta60 beta70 beta80")
+            if len(values) != 14:  # 2 for Z,N + 12 for betas
+                raise ValueError("Expected 14 values: Z N beta10 beta20 beta30 beta40 beta50 beta60 beta70 beta80 beta90 beta100 beta110 beta120")
 
             # Validate Z and N ranges
             if not (82 <= values[0] <= 120 and 100 <= values[1] <= 180):
