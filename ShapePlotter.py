@@ -392,6 +392,11 @@ def main():
         shape_volume_integration = calculate_volume_by_integration(number_of_protons, number_of_neutrons, parameters)
         if abs(sphere_volume - shape_volume_integration) > 1.0:
             volume_mismatch = True
+            
+        # Check volume conservation
+        fixed_volume = shape_volume * volume_fix
+        if abs(sphere_volume - fixed_volume) > 1.0:
+            volume_mismatch = True
 
         negative_radius = False
         if np.any(plot_radius < 0):
