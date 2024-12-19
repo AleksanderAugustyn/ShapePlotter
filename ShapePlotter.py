@@ -26,7 +26,7 @@ def calculate_volume(number_of_protons, number_of_neutrons, parameters):
     :return    float: The calculated volume of the nucleus.
     """
     number_of_nucleons = number_of_protons + number_of_neutrons
-    beta10, beta20, beta30, beta40, beta50, beta60, beta70, beta80 = parameters
+    beta10, beta20, beta30, beta40, beta50, beta60, beta70, beta80, beta90, beta100, beta110, beta120 = parameters
 
     # Base coefficient
     base_coefficient = 1 / (111546435 * np.sqrt(np.pi))
@@ -176,14 +176,14 @@ def main():
     ax_text = fig.add_subplot(122)
     ax_text.axis('off')
 
-    plt.subplots_adjust(left=0.1, bottom=0.45, right=0.9, top=0.95)
+    plt.subplots_adjust(left=0.1, bottom=0.48, right=0.9, top=0.98)
 
     # Add text for keyboard input instructions
     ax_text.text(0.1, 0.35, 'Keyboard Input Format:\nZ N β10 β20 β30 β40 β50 β60 β70 β80 β90 β100 β110 β120\nExample: 102 154 0.0 0.5 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0',
                  fontsize=12, verticalalignment='top')
     
     # Add error message text (initially empty)
-    error_text = ax_text.text(0.1, 0.25, '', color='red', fontsize=12, verticalalignment='top')
+    error_text = ax_text.text(0.1, 0.20, '', color='red', fontsize=12, verticalalignment='top')
 
     # Initial parameters
     num_harmonics = 12
@@ -215,13 +215,13 @@ def main():
     increase_buttons = []
 
     # Create sliders for protons and neutrons
-    ax_z = plt.axes((0.25, 0.05, 0.5, 0.02))
-    ax_z_decrease = plt.axes((0.16, 0.05, 0.04, 0.02))
-    ax_z_increase = plt.axes((0.80, 0.05, 0.04, 0.02))
+    ax_z = plt.axes((0.25, 0.00, 0.5, 0.02))
+    ax_z_decrease = plt.axes((0.16, 0.00, 0.04, 0.02))
+    ax_z_increase = plt.axes((0.80, 0.00, 0.04, 0.02))
 
-    ax_n = plt.axes((0.25, 0.08, 0.5, 0.02))
-    ax_n_decrease = plt.axes((0.16, 0.08, 0.04, 0.02))
-    ax_n_increase = plt.axes((0.80, 0.08, 0.04, 0.02))
+    ax_n = plt.axes((0.25, 0.03, 0.5, 0.02))
+    ax_n_decrease = plt.axes((0.16, 0.03, 0.04, 0.02))
+    ax_n_increase = plt.axes((0.80, 0.03, 0.04, 0.02))
 
     slider_z = Slider(ax=ax_z, label='Z', valmin=82, valmax=120, valinit=initial_z, valstep=1)
     slider_n = Slider(ax=ax_n, label='N', valmin=100, valmax=180, valinit=initial_n, valstep=1)
@@ -238,9 +238,9 @@ def main():
 
     # Create sliders for deformation parameters
     for i in range(num_harmonics):
-        ax_decrease = plt.axes((0.16, 0.11 + i * slider_height, 0.04, 0.02))
-        ax_slider = plt.axes((0.25, 0.11 + i * slider_height, 0.5, 0.02))
-        ax_increase = plt.axes((0.80, 0.11 + i * slider_height, 0.04, 0.02))
+        ax_decrease = plt.axes((0.16, 0.06 + i * slider_height, 0.04, 0.02))
+        ax_slider = plt.axes((0.25, 0.06 + i * slider_height, 0.5, 0.02))
+        ax_increase = plt.axes((0.80, 0.06 + i * slider_height, 0.04, 0.02))
 
         valmin, valmax = (-1.6, 1.6) if i == 0 else (0.0, 3.0) if i == 1 else (-1.0, 1.0)
 
@@ -264,18 +264,18 @@ def main():
         increase_buttons.append(btn_increase)
 
     # Create save and reset buttons
-    ax_save = plt.axes((0.75, 0.4, 0.1, 0.04))
+    ax_save = plt.axes((0.75, 0.45, 0.1, 0.04))
     save_button = Button(ax=ax_save, label='Save Plot')
 
-    ax_reset = plt.axes((0.86, 0.4, 0.1, 0.04))
+    ax_reset = plt.axes((0.86, 0.45, 0.1, 0.04))
     reset_button = Button(ax=ax_reset, label='Reset')
 
     # Create text input field and submit button for parameters
-    ax_input = plt.axes((0.25, 0.35, 0.5, 0.02))
+    ax_input = plt.axes((0.25, 0.42, 0.5, 0.02))
     text_box = TextBox(ax_input, 'Parameters', initial='')
     text_box.label.set_fontsize(12)
 
-    ax_submit = plt.axes((0.80, 0.35, 0.1, 0.02))
+    ax_submit = plt.axes((0.80, 0.42, 0.1, 0.02))
     submit_button = Button(ax_submit, 'Submit')
 
     def reset_values(_):
@@ -292,7 +292,7 @@ def main():
             # Parse input string - expecting format: "Z N beta10 beta20 beta30 beta40 beta50 beta60 beta70 beta80"
             values = [float(x) for x in text_box.text.split()]
             if len(values) != 14:  # 2 for Z,N + 12 for betas
-                raise ValueError("Expected 14 values: Z N beta10 beta20 beta30 beta40 beta50 beta60 beta70 beta80 beta90 beta100 beta110 beta120")
+                raise ValueError("Expected 14 values: Z N β10 β20 β30 β40 β50 β60 β70 β80 β90 β100 β110 β120")
 
             # Validate Z and N ranges
             if not (82 <= values[0] <= 120 and 100 <= values[1] <= 180):
