@@ -181,7 +181,7 @@ def main():
     # Add text for keyboard input instructions
     ax_text.text(0.1, 0.35, 'Keyboard Input Format:\nZ N β10 β20 β30 β40 β50 β60 β70 β80 β90 β100 β110 β120\nExample: 102 154 0.0 0.5 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0',
                  fontsize=12, verticalalignment='top')
-    
+
     # Add error message text (initially empty)
     error_text = ax_text.text(0.1, 0.20, '', color='red', fontsize=12, verticalalignment='top')
 
@@ -272,7 +272,7 @@ def main():
 
     # Create text input field and submit button for parameters
     ax_input = plt.axes((0.25, 0.42, 0.5, 0.02))
-    text_box = TextBox(ax_input, 'Parameters', initial='')
+    text_box = TextBox(ax_input, 'Parameters')
     text_box.label.set_fontsize(12)
 
     ax_submit = plt.axes((0.80, 0.42, 0.1, 0.02))
@@ -280,8 +280,8 @@ def main():
 
     def reset_values(_):
         """Reset all sliders to their initial values."""
-        for slider in sliders:
-            slider.set_val(0.0)
+        for slider_counter in sliders:
+            slider_counter.set_val(0.0)
         slider_z.set_val(initial_z)
         slider_n.set_val(initial_n)
         text_box.set_val('')
@@ -290,7 +290,7 @@ def main():
         """Handle parameter submission from text input."""
         try:
             # Parse input string - expecting format: "Z N beta10 beta20 beta30 beta40 beta50 beta60 beta70 beta80"
-            values = [float(x) for x in text_box.text.split()]
+            values = [float(submit_value) for submit_value in text_box.text.split()]
             if len(values) != 14:  # 2 for Z,N + 12 for betas
                 raise ValueError("Expected 14 values: Z N β10 β20 β30 β40 β50 β60 β70 β80 β90 β100 β110 β120")
 
@@ -303,10 +303,10 @@ def main():
             slider_n.set_val(int(values[1]))
 
             # Update beta parameter sliders
-            for i, slider in enumerate(sliders):
-                if not (slider.valmin <= values[i + 2] <= slider.valmax):
-                    raise ValueError(f"β{i + 1}0 must be between {slider.valmin} and {slider.valmax}")
-                slider.set_val(values[i + 2])
+            for beta_parameter, slider_counter in enumerate(sliders):
+                if not (slider_counter.valmin <= values[beta_parameter + 2] <= slider_counter.valmax):
+                    raise ValueError(f"β{beta_parameter + 1}0 must be between {slider_counter.valmin} and {slider_counter.valmax}")
+                slider_counter.set_val(values[beta_parameter + 2])
 
             # Clear the text box and error message after successful submission
             text_box.set_val('')
@@ -408,10 +408,8 @@ def main():
         # Calculate lengths
         max_x_length = np.max(plot_y) - np.min(plot_y)
         max_y_length = np.max(plot_x) - np.min(plot_x)
-        along_x_length = calculate_radius(0.0, parameters, number_of_protons, number_of_neutrons) + \
-                         calculate_radius(np.pi, parameters, number_of_protons, number_of_neutrons)
-        along_y_length = calculate_radius(np.pi / 2, parameters, number_of_protons, number_of_neutrons) + \
-                         calculate_radius(-np.pi / 2, parameters, number_of_protons, number_of_neutrons)
+        along_x_length = calculate_radius(0.0, parameters, number_of_protons, number_of_neutrons) + calculate_radius(np.pi, parameters, number_of_protons, number_of_neutrons)
+        along_y_length = calculate_radius(np.pi / 2, parameters, number_of_protons, number_of_neutrons) + calculate_radius(-np.pi / 2, parameters, number_of_protons, number_of_neutrons)
 
         # Calculate volumes
         sphere_volume = calculate_sphere_volume(number_of_protons, number_of_neutrons)
@@ -451,7 +449,10 @@ def main():
 
     # Function to create button click handlers
     def create_button_handler(slider_obj, increment):
+        """Create a button click handler for a slider object."""
+
         def handler(_):
+            """Handle button click event."""
             new_val = slider_obj.val + increment * slider_obj.valstep
             if slider_obj.valmin <= new_val <= slider_obj.valmax:
                 slider_obj.set_val(new_val)
