@@ -56,14 +56,14 @@ def calculate_volume(number_of_protons, number_of_neutrons, parameters):
         285) * beta120 * beta70 * beta90 + 6203093796900 * np.sqrt(57) * beta20 * beta70 * beta90 + 1590536871000 * np.sqrt(285) * beta40 * beta70 * beta90 + 363057329250 * np.sqrt(3705) * beta60 * beta70 * beta90 + 1550773449225 * np.sqrt(
         969) * beta10 * beta80 * beta90 + 222786443880 * np.sqrt(7429) * beta110 * beta80 * beta90 + 590770837800 * np.sqrt(2261) * beta30 * beta80 * beta90 + 380345773500 * np.sqrt(3553) * beta50 * beta80 * beta90 + 290445863400 * np.sqrt(
         4845) * beta70 * beta80 * beta90 + 9387573945750 * beta120 * beta90 ** 2 + 7015403698875 * np.sqrt(5) * beta20 * beta90 ** 2 + 12078695064150 * beta40 * beta90 ** 2 + 2890627878600 * np.sqrt(
-        13) * beta60 * beta90 ** 2 + 2324911563975 * np.sqrt(17) * beta80 * beta90 ** 2 + 55655536011075 * np.sqrt(np.pi) * (
-                                                      beta10 ** 2 + beta100 ** 2 + beta110 ** 2 + beta120 ** 2 + beta20 ** 2 + beta30 ** 2 + beta40 ** 2 + beta50 ** 2 + beta60 ** 2 + beta70 ** 2 + beta80 ** 2 + beta90 ** 2) + 2035 * beta100 * (
-                                                      930397104 * np.sqrt(21) * beta110 ** 2 + 912234960 * np.sqrt(21) * beta120 ** 2 + 2242291194 * np.sqrt(105) * beta120 * beta20 + 2841109700 * np.sqrt(
-                                                  21) * beta120 * beta40 + 2462010390 * np.sqrt(21) * beta50 ** 2 + 635359725 * np.sqrt(273) * beta120 * beta60 + 1367783550 * np.sqrt(273) * beta40 * beta60 + 1391571090 * np.sqrt(
-                                                  21) * beta60 ** 2 + 10160677800 * np.sqrt(5) * beta30 * beta70 + 654157350 * np.sqrt(385) * beta50 * beta70 + 1156074444 * np.sqrt(21) * beta70 ** 2 + 491891400 * np.sqrt(
-                                                  357) * beta120 * beta80 + 544322025 * np.sqrt(1785) * beta20 * beta80 + 694207800 * np.sqrt(357) * beta40 * beta80 + 156997764 * np.sqrt(4641) * beta60 * beta80 + 1051409268 * np.sqrt(
-                                                  21) * beta80 ** 2 + 1822295475 * np.sqrt(57) * beta30 * beta90 + 166609872 * np.sqrt(4389) * beta50 * beta90 + 377957580 * np.sqrt(665) * beta70 * beta90 + 992760678 * np.sqrt(
-                                                  21) * beta90 ** 2 + 8940555 * beta10 * (209 * np.sqrt(161) * beta110 + 230 * np.sqrt(133) * beta90) + 858 * beta110 * (
+        13) * beta60 * beta90 ** 2 + 2324911563975 * np.sqrt(17) * beta80 * beta90 ** 2 + 55655536011075 * np.sqrt(np.pi) * (beta10 ** 2 + beta100 ** 2 + beta110 ** 2 + beta120 ** 2 + beta20 ** 2 + beta30 ** 2 + beta40 ** 2 +
+                                                                                                                             beta50 ** 2 + beta60 ** 2 + beta70 ** 2 + beta80 ** 2 + beta90 ** 2) + 2035 * beta100 * (
+                                                      930397104 * np.sqrt(21) * beta110 ** 2 + 912234960 * np.sqrt(21) * beta120 ** 2 + 2242291194 * np.sqrt(105) * beta120 * beta20 + 2841109700 *
+                                                      np.sqrt(21) * beta120 * beta40 + 2462010390 * np.sqrt(21) * beta50 ** 2 + 635359725 * np.sqrt(273) * beta120 * beta60 + 1367783550 * np.sqrt(273) * beta40 * beta60 + 1391571090 *
+                                                      np.sqrt(21) * beta60 ** 2 + 10160677800 * np.sqrt(5) * beta30 * beta70 + 654157350 * np.sqrt(385) * beta50 * beta70 + 1156074444 * np.sqrt(21) * beta70 ** 2 + 491891400 *
+                                                      np.sqrt(357) * beta120 * beta80 + 544322025 * np.sqrt(1785) * beta20 * beta80 + 694207800 * np.sqrt(357) * beta40 * beta80 + 156997764 * np.sqrt(4641) * beta60 * beta80 + 1051409268 *
+                                                      np.sqrt(21) * beta80 ** 2 + 1822295475 * np.sqrt(57) * beta30 * beta90 + 166609872 * np.sqrt(4389) * beta50 * beta90 + 377957580 * np.sqrt(665) * beta70 * beta90 + 992760678 *
+                                                      np.sqrt(21) * beta90 ** 2 + 8940555 * beta10 * (209 * np.sqrt(161) * beta110 + 230 * np.sqrt(133) * beta90) + 858 * beta110 * (
                                                               1925658 * np.sqrt(69) * beta30 + 175305 * np.sqrt(5313) * beta50 + 394940 * np.sqrt(805) * beta70 + 108045 * np.sqrt(9177) * beta90)))) / (
                      5.5655536011075e13 * np.sqrt(np.pi))
 
@@ -133,7 +133,7 @@ def main():
     plt.subplots_adjust(left=0.1, bottom=0.48, right=0.9, top=0.98)
 
     # Add text for keyboard input instructions
-    ax_text.text(0.1, 0.35, 'Keyboard Input Format:\nZ N β10 β20 β30 β40 β50 β60 β70 β80 β90 β100 β110 β120\nExample: 102 154 0.0 0.5 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0',
+    ax_text.text(0.1, 0.35, 'Keyboard Input Format (works with Ctrl+V):\nZ N β10 β20 β30 β40 β50 β60 β70 β80 β90 β100 β110 β120\nExample: 102 154 0.0 0.5 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0',
                  fontsize=12, verticalalignment='top')
 
     # Add error message text (initially empty)
@@ -228,6 +228,23 @@ def main():
     ax_input = plt.axes((0.25, 0.42, 0.5, 0.02))
     text_box = TextBox(ax_input, 'Parameters')
     text_box.label.set_fontsize(12)
+
+    # Enable key events for the text box
+    text_box_widget = text_box.ax.figure.canvas.get_tk_widget()
+    root = text_box_widget.master
+
+    def handle_paste(_):
+        """Handle paste events from clipboard."""
+        try:
+            clipboard_text = root.clipboard_get()
+            text_box.set_val(clipboard_text)
+            return "break"  # Prevents default paste behavior
+        except Exception as e:
+            print(f"Error pasting from clipboard: {e}")
+            return "break"
+
+    # Bind Ctrl+V to the root window
+    root.bind_all('<Control-v>', handle_paste)
 
     ax_submit = plt.axes((0.80, 0.42, 0.1, 0.02))
     submit_button = Button(ax_submit, 'Submit')
