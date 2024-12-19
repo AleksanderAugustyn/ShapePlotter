@@ -181,6 +181,9 @@ def main():
     # Add text for keyboard input instructions
     ax_text.text(0.1, 0.35, 'Keyboard Input Format:\nZ N β10 β20 β30 β40 β50 β60 β70 β80\nExample: 102 154 0.0 0.5 0.0 0.0 0.0 0.0 0.0 0.0',
                  fontsize=12, verticalalignment='top')
+    
+    # Add error message text (initially empty)
+    error_text = ax_text.text(0.1, 0.25, '', color='red', fontsize=12, verticalalignment='top')
 
     # Initial parameters
     num_harmonics = 8
@@ -305,13 +308,15 @@ def main():
                     raise ValueError(f"β{i + 1}0 must be between {slider.valmin} and {slider.valmax}")
                 slider.set_val(values[i + 2])
 
-            # Clear the text box after successful submission
+            # Clear the text box and error message after successful submission
             text_box.set_val('')
-            print("Parameters successfully updated")
+            error_text.set_text('')
+            fig.canvas.draw_idle()
 
         except (ValueError, IndexError) as e:
-            print(f"Error: {str(e)}")
-            print("Please use format: Z N beta10 beta20 beta30 beta40 beta50 beta60 beta70 beta80")
+            error_msg = f"Error: {str(e)}\nPlease use format: Z N β10 β20 β30 β40 β50 β60 β70 β80"
+            error_text.set_text(error_msg)
+            fig.canvas.draw_idle()
 
     def save_plot(_):
         """Save the current plot to a file."""
