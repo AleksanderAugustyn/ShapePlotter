@@ -359,7 +359,17 @@ def main():
         print(f"Plot saved as {filename}")
 
     def find_nearest_point(plot_x, plot_y, angle):
-        """Find the nearest point on the curve to a given angle."""
+        """
+        Find the nearest point on the curve to a given angle.
+
+        Args:
+        :parameter    plot_x (numpy.ndarray): Array of x coordinates of the curve.
+        :parameter    plot_y (numpy.ndarray): Array of y coordinates of the curve.
+        :parameter    angle (float): Target angle in radians.
+
+        Returns:
+        :return    tuple: A tuple containing (x, y) coordinates of the nearest point in fm.
+        """
         angles = np.arctan2(plot_y, plot_x)
         angle_diff = np.abs(angles - angle)
         nearest_index = np.argmin(angle_diff)
