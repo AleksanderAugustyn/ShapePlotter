@@ -71,7 +71,16 @@ def calculate_volume(number_of_protons, number_of_neutrons, beta_parameters):
 
 
 def calculate_sphere_volume(number_of_protons, number_of_neutrons):
-    """Calculate the volume of a spherical nucleus."""
+    """
+    Calculate the volume of a spherical nucleus.
+
+    Args:
+    :parameter    number_of_protons (int): The number of protons.
+    :parameter    number_of_neutrons (int): The number of neutrons.
+
+    Returns:
+    :return    float: The calculated volume of the spherical nucleus in fm³.
+    """
     return 4 / 3 * np.pi * (number_of_protons + number_of_neutrons) * r0 ** 3
 
 
