@@ -126,7 +126,17 @@ def calculate_radius(theta, parameters, number_of_protons, number_of_neutrons):
 
 
 def calculate_volume_by_integration(number_of_protons, number_of_neutrons, parameters):
-    """Calculate the volume of the nucleus by numerical integration."""
+    """
+    Calculate the volume of the nucleus by numerical integration.
+
+    Args:
+    :parameter    number_of_protons (int): The number of protons.
+    :parameter    number_of_neutrons (int): The number of neutrons.
+    :parameter    parameters (tuple): A tuple of deformation parameters (beta10, beta20, ..., beta120).
+
+    Returns:
+    :return    float: The calculated volume of the nucleus by numerical integration in fm³.
+    """
     n_theta, n_phi = 200, 200
     theta = np.linspace(0, np.pi, n_theta)
     phi = np.linspace(0, 2 * np.pi, n_phi)
@@ -139,7 +149,18 @@ def calculate_volume_by_integration(number_of_protons, number_of_neutrons, param
 
 
 def find_neck_thickness(x_coords, y_coords, theta_vals, degree_range):
-    """Find the neck thickness between specified degree range."""
+    """
+    Find the neck thickness between specified degree range.
+
+    Args:
+    :parameter    x_coords (numpy.ndarray): Array of x coordinates.
+    :parameter    y_coords (numpy.ndarray): Array of y coordinates.
+    :parameter    theta_vals (numpy.ndarray): Array of theta values in radians.
+    :parameter    degree_range (tuple): Tuple containing start and end angles in degrees.
+
+    Returns:
+    :return    tuple: A tuple containing (neck_thickness, x_position, y_position) in fm.
+    """
     start_rad, end_rad = np.radians(degree_range)
     mask = (theta_vals >= start_rad) & (theta_vals <= end_rad)
     relevant_x = x_coords[mask]
@@ -153,7 +174,15 @@ def find_neck_thickness(x_coords, y_coords, theta_vals, degree_range):
 
 
 def main():
-    """Main function to create and display the nuclear shape plot."""
+    """
+    Main function to create and display the nuclear shape plot.
+
+    Args:
+        None
+
+    Returns:
+    :return    None: Creates and displays an interactive matplotlib figure.
+    """
     # Set up the figure
     fig = plt.figure(figsize=(15, 8))
     ax_plot = fig.add_subplot(121)
