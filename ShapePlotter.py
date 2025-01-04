@@ -102,7 +102,18 @@ def calculate_volume_fixing_factor(number_of_protons, number_of_neutrons, parame
 
 
 def calculate_radius(theta, parameters, number_of_protons, number_of_neutrons):
-    """Calculate the nuclear radius as a function of polar angle theta."""
+    """
+    Calculate the nuclear radius as a function of polar angle theta.
+
+    Args:
+    :parameter    theta (numpy.ndarray): Array of polar angles in radians.
+    :parameter    parameters (tuple): A tuple of deformation parameters (beta10, beta20, ..., beta120).
+    :parameter    number_of_protons (int): The number of protons.
+    :parameter    number_of_neutrons (int): The number of neutrons.
+
+    Returns:
+    :return    numpy.ndarray: The calculated nuclear radius values in fm.
+    """
     radius = np.ones_like(theta)
 
     for harmonic_index in range(1, 13):
