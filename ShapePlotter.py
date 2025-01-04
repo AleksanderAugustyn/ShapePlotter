@@ -178,7 +178,7 @@ def main():
     Main function to create and display the nuclear shape plot.
 
     Args:
-        None
+    :parameter    None
 
     Returns:
     :return    None: Creates and displays an interactive matplotlib figure.
