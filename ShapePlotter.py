@@ -13,20 +13,20 @@ matplotlib.use('TkAgg')
 r0 = 1.16  # Radius constant in fm
 
 
-def calculate_volume(number_of_protons, number_of_neutrons, parameters):
+def calculate_volume(number_of_protons, number_of_neutrons, beta_parameters):
     """
     Calculate the volume of a nucleus with given parameters using an analytical formula.
 
     Args:
-    :parameter    Z (int): The number of protons.
-    :parameter    N (int): The number of neutrons.
-    :parameter    parameters (tuple): A tuple of deformation parameters (beta10, beta20, ..., beta80).
+    :parameter    number_of_protons (int): The number of protons.
+    :parameter    number_of_neutrons (int): The number of neutrons.
+    :parameter    beta_parameters (tuple): A tuple of deformation parameters (beta10, beta20, ..., beta120).
 
     Returns:
-    :return    float: The calculated volume of the nucleus.
+    :return    float: The calculated volume of the nucleus in fm³.
     """
     number_of_nucleons = number_of_protons + number_of_neutrons
-    beta10, beta20, beta30, beta40, beta50, beta60, beta70, beta80, beta90, beta100, beta110, beta120 = parameters
+    beta10, beta20, beta30, beta40, beta50, beta60, beta70, beta80, beta90, beta100, beta110, beta120 = beta_parameters
 
     volume = (number_of_nucleons * r0 ** 3 * (74207381348100 * np.pi ** 1.5 + 648269351730 * np.sqrt(21) * beta100 ** 3 + 5807534192460 * np.sqrt(
         69) * beta10 * beta110 * beta120 + 8429951570040 * beta110 ** 2 * beta120 + 2724132411000 * beta120 ** 3 + 11131107202215 * np.sqrt(5) * beta10 ** 2 * beta20 + 6996695955678 * np.sqrt(
