@@ -85,7 +85,17 @@ def calculate_sphere_volume(number_of_protons, number_of_neutrons):
 
 
 def calculate_volume_fixing_factor(number_of_protons, number_of_neutrons, parameters):
-    """Calculate the volume fixing factor to conserve volume."""
+    """
+    Calculate the volume fixing factor to conserve volume.
+
+    Args:
+    :parameter    number_of_protons (int): The number of protons.
+    :parameter    number_of_neutrons (int): The number of neutrons.
+    :parameter    parameters (tuple): A tuple of deformation parameters (beta10, beta20, ..., beta120).
+
+    Returns:
+    :return    float: The calculated volume fixing factor (dimensionless).
+    """
     initial_volume = calculate_volume(number_of_protons, number_of_neutrons, parameters)
     sphere_volume = calculate_sphere_volume(number_of_protons, number_of_neutrons)
     return sphere_volume / initial_volume
