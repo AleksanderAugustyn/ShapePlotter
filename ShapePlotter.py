@@ -369,10 +369,7 @@ class NuclearShapePlotter:
         """Create a button click handler for a slider object."""
 
         def handler(_):
-            """
-            Handle button click event.
-            :param _:
-            """
+            """Handle button click event."""
             new_val = slider_obj.val + increment * slider_obj.valstep
             if slider_obj.valmin <= new_val <= slider_obj.valmax:
                 slider_obj.set_val(new_val)
