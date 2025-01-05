@@ -181,11 +181,11 @@ class NuclearShapePlotter:
         self.decrease_buttons = None
         self.sliders = None
         self.nuclear_params = None
+        self.num_harmonics = 12
         self.theta = np.linspace(0, 2 * np.pi, 2000)
         self.initial_betas = [0.0] * self.num_harmonics
         self.initial_z = 102
         self.initial_n = 154
-        self.num_harmonics = 12
         self.setup_initial_parameters()
         self.create_figure()
         self.setup_controls()
