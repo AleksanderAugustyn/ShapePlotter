@@ -3,7 +3,8 @@ Nuclear Shape Plotter - A program to visualize and analyze nuclear shapes using 
 This version implements an object-oriented design for better organization and maintainability.
 """
 
-from dataclasses import dataclass
+import warnings
+from dataclasses import dataclass, field
 from typing import List, Tuple
 
 import matplotlib
@@ -22,8 +23,24 @@ class NuclearParameters:
     """Class to store nuclear shape parameters."""
     protons: int
     neutrons: int
-    beta_values: List[float]
+    beta_values: List[float] = field(default_factory=lambda: [0.0] * 12)
     r0: float = 1.16  # Radius constant in fm
+
+    def __post_init__(self):
+        """Validate and adjust beta_values after initialization."""
+        if not isinstance(self.beta_values, list):
+            raise TypeError("beta_values must be a list")
+
+        if len(self.beta_values) != 12:
+            original_length = len(self.beta_values)
+            if len(self.beta_values) < 12:
+                # Pad with zeros if list is too short
+                self.beta_values.extend([0.0] * (12 - len(self.beta_values)))
+                warnings.warn(f"beta_values list was too short (length {original_length}). Padded with zeros to length 12.")
+            else:
+                # Truncate if list is too long
+                self.beta_values = self.beta_values[:12]
+                warnings.warn(f"beta_values list was too long (length {original_length}). Truncated to length 12.")
 
     @property
     def nucleons(self) -> int:
