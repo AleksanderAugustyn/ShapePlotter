@@ -13,7 +13,7 @@ import numpy as np
 from matplotlib.widgets import Button, Slider, TextBox
 from numpy import ndarray
 from scipy import integrate
-from scipy.special import sph_harm
+from scipy.special import sph_harm_y
 
 matplotlib.use('TkAgg')
 
@@ -117,7 +117,7 @@ class NuclearShapeCalculator:
         radius = np.ones_like(theta)
 
         for harmonic_index in range(1, 13):
-            harmonic = np.real(sph_harm(0, harmonic_index, 0, theta))
+            harmonic = np.real(sph_harm_y(harmonic_index, 0, theta, 0.0))
             radius += self.params.beta_values[harmonic_index - 1] * harmonic
 
         volume_fix = self.calculate_volume_fixing_factor() ** (1 / 3)
