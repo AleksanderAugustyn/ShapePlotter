@@ -129,16 +129,20 @@ class NuclearShapeCalculator:
         sphere_volume = self.calculate_sphere_volume()
         return sphere_volume / initial_volume
 
-    def calculate_volume_by_integration(self, n_theta: int = 200, n_phi: int = 200) -> float:
-        """Calculate nucleus volume by numerical integration."""
+    def calculate_volume_by_integration(self, n_theta: int = 400) -> float:
+        """Calculate nucleus volume by numerical integration.
+
+        Args:
+            n_theta: Number of points for theta discretization
+
+        Returns:
+            float: Volume of the nucleus in fm³
+        """
         theta = np.linspace(0, np.pi, n_theta)
-        phi = np.linspace(0, 2 * np.pi, n_phi)
-        theta_mesh, phi_mesh = np.meshgrid(theta, phi)
+        r = self.calculate_radius(theta)
+        integrand = 2 * np.pi * (r ** 3 * np.sin(theta)) / 3
 
-        r = self.calculate_radius(theta_mesh)
-        integrand = (r ** 3 * np.sin(theta_mesh)) / 3
-
-        return integrate.trapezoid(integrate.trapezoid(integrand, theta, axis=1), phi)
+        return integrate.trapezoid(integrand, theta)
 
 
 class ShapeAnalyzer:
