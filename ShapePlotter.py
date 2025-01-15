@@ -181,6 +181,7 @@ class NuclearShapePlotter:
 
     def __init__(self):
         """Initialize the plotter with default settings."""
+        self.sphere_line = None
         self.root = None
         self.submit_button = None
         self.text_box = None
@@ -541,6 +542,17 @@ class NuclearShapePlotter:
         # Check calculations
         volume_mismatch = abs(sphere_volume - shape_volume_integration) > 1.0
         negative_radius = np.any(plot_radius < 0)
+
+        # Clear old beta plot if it exists
+        if self.sphere_line is not None:
+            self.sphere_line.remove()
+
+        # Update reference sphere
+        R_0 = current_params.r0 * (current_params.nucleons ** (1 / 3))
+        sphere_theta = np.linspace(0, 2 * np.pi, 200)
+        sphere_x = R_0 * np.cos(sphere_theta)
+        sphere_y = R_0 * np.sin(sphere_theta)
+        self.sphere_line, = self.ax_plot.plot(sphere_x, sphere_y, '--', color='gray', alpha=0.5, label='R₀')
 
         # Update information display
         self.volume_text.set_text(
