@@ -5,13 +5,13 @@ This version implements an object-oriented design for better organization and ma
 
 import warnings
 from dataclasses import dataclass, field
-from typing import List, Tuple
+from typing import Any, List, Tuple
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Button, Slider, TextBox
-from numpy import ndarray
+from numpy import dtype, ndarray
 from scipy import integrate
 from scipy.special import sph_harm_y
 
@@ -144,6 +144,39 @@ class NuclearShapeCalculator:
 
         return integrate.trapezoid(integrand, theta)
 
+    def check_convexity(self, n_points: int = 1000) -> tuple[bool, np.ndarray, np.ndarray]:
+        """Check if the nuclear shape is convex by analyzing its curvature.
+
+        Args:
+            n_points: Number of points for discretization
+
+        Returns:
+            tuple containing:
+                - bool: True if shape is convex
+                - np.ndarray: theta values where convexity was checked
+                - np.ndarray: curvature values at each point
+        """
+        theta = np.linspace(0, 2 * np.pi, n_points)
+        h = theta[1] - theta[0]  # Step size
+
+        # Calculate radius and its derivatives
+        r = self.calculate_radius(theta)
+
+        # First derivative using central difference
+        dr = np.gradient(r, h)
+
+        # Second derivative using central difference
+        d2r = np.gradient(dr, h)
+
+        # Calculate curvature in polar coordinates
+        # κ = (r² + 2(dr/dθ)² - r(d²r/dθ²)) / (r² + (dr/dθ)²)^(3/2)
+        curvature = (r ** 2 + 2 * dr ** 2 - r * d2r) / (r ** 2 + dr ** 2) ** (3 / 2)
+
+        # A shape is convex if its curvature is positive everywhere
+        is_convex = np.all(curvature > 0)
+
+        return is_convex, theta, curvature
+
 
 class ShapeAnalyzer:
     """Class for analyzing nuclear shapes and finding key measurements."""
@@ -153,7 +186,7 @@ class ShapeAnalyzer:
         self.y_coords = y_coords
         self.theta_vals = theta_vals
 
-    def find_neck_thickness(self, degree_range: Tuple[float, float]) -> tuple[float, ndarray[float, float], ndarray[float, float]]:
+    def find_neck_thickness(self, degree_range: Tuple[float, float]) -> tuple[int | Any, ndarray[tuple[int, ...], dtype[Any] | Any], ndarray[tuple[int, ...], dtype[Any] | Any]]:
         """Find neck thickness between specified degree range."""
         start_rad, end_rad = np.radians(degree_range)
         mask = (self.theta_vals >= start_rad) & (self.theta_vals <= end_rad)
@@ -168,7 +201,7 @@ class ShapeAnalyzer:
         return neck_thickness, relevant_x[neck_idx], relevant_y[neck_idx]
 
     @staticmethod
-    def find_nearest_point(plot_x: np.ndarray, plot_y: np.ndarray, angle: float) -> tuple[ndarray[float, float], ndarray[float, float]]:
+    def find_nearest_point(plot_x: np.ndarray, plot_y: np.ndarray, angle: float) -> tuple[ndarray[tuple[int, ...], dtype[Any] | Any], ndarray[tuple[int, ...], dtype[Any] | Any]]:
         """Find nearest point on curve to given angle."""
         angles = np.arctan2(plot_y, plot_x)
         angle_diff = np.abs(angles - angle)
@@ -554,6 +587,9 @@ class NuclearShapePlotter:
         sphere_y = R_0 * np.sin(sphere_theta)
         self.sphere_line, = self.ax_plot.plot(sphere_x, sphere_y, '--', color='gray', alpha=0.5, label='R₀')
 
+        # Add convexity check
+        is_convex, convexity_theta, curvature = calculator.check_convexity()
+
         # Update information display
         self.volume_text.set_text(
             f'Sphere Volume: {sphere_volume:.4f} fm³\n'
@@ -567,7 +603,8 @@ class NuclearShapePlotter:
             f'Length Along X Axis (red): {along_x_length:.2f} fm\n'
             f'Length Along Y Axis (blue): {along_y_length:.2f} fm\n'
             f'Neck Thickness (45°-135°, green): {neck_thickness_45_135:.2f} fm\n'
-            f'Neck Thickness (30°-150°, purple): {neck_thickness_30_150:.2f} fm\n' +
+            f'Neck Thickness (30°-150°, purple): {neck_thickness_30_150:.2f} fm\n'
+            f'Shape is{" " if is_convex else " not "}convex\n' +
             ('Negative radius detected!\n' if negative_radius else '')
         )
 
