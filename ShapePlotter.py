@@ -177,6 +177,39 @@ class NuclearShapeCalculator:
 
         return is_convex, theta, curvature
 
+    def check_convexity2(self, n_points: int = 1000) -> tuple[bool, np.ndarray, np.ndarray]:
+        """Check if the nuclear shape is convex by analyzing its curvature.
+
+        Args:
+            n_points: Number of points for discretization
+
+        Returns:
+            tuple containing:
+                - bool: True if shape is convex
+                - np.ndarray: theta values where convexity was checked
+                - np.ndarray: curvature values at each point
+        """
+        theta = np.linspace(0, 2 * np.pi, n_points)
+        h = theta[1] - theta[0]  # Step size
+
+        # Calculate radius and its derivatives
+        r = self.calculate_radius(theta)
+
+        # First derivative using central difference
+        dr = np.gradient(r, h)
+
+        # Second derivative using central difference
+        d2r = np.gradient(dr, h)
+
+        # Calculate curvature in polar coordinates
+        # κ = (r² + 2(dr/dθ)² - r(d²r/dθ²)) / (r² + (dr/dθ)²)^(3/2)
+        curvature = (r ** 2 + 2 * dr ** 2 - r * d2r) / (r ** 2 + dr ** 2) ** (3 / 2)
+
+        # A shape is convex if its curvature is positive everywhere
+        is_convex = np.all(curvature > 0)
+
+        return is_convex, theta, curvature
+
 
 class ShapeAnalyzer:
     """Class for analyzing nuclear shapes and finding key measurements."""
