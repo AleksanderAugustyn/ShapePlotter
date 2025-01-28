@@ -159,6 +159,8 @@ class NuclearShapeCalculator:
         theta = np.linspace(0, 2 * np.pi, n_points)
         h = theta[1] - theta[0]  # Step size
 
+        print(h)
+
         # Calculate radius and its derivatives
         r = self.calculate_radius(theta)
 
