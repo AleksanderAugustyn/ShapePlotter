@@ -159,8 +159,6 @@ class NuclearShapeCalculator:
         theta = np.linspace(0, 2 * np.pi, n_points)
         h = theta[1] - theta[0]  # Step size
 
-        print(h)
-
         # Calculate radius and its derivatives
         r = self.calculate_radius(theta)
 
@@ -173,10 +171,6 @@ class NuclearShapeCalculator:
         # Calculate curvature in polar coordinates
         # κ = (r² + 2(dr/dθ)² - r(d²r/dθ²)) / (r² + (dr/dθ)²)^(3/2)
         curvature = (r ** 2 + 2 * dr ** 2 - r * d2r) / (r ** 2 + dr ** 2) ** (3 / 2)
-
-        print(dr)
-        print(d2r)
-        print(curvature)
 
         # A shape is convex if its curvature is positive everywhere
         is_convex = np.all(curvature > 0)
