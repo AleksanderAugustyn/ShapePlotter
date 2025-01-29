@@ -144,7 +144,7 @@ class NuclearShapeCalculator:
 
         return integrate.trapezoid(integrand, theta)
 
-    def check_convexity(self, n_points: int = 1000) -> tuple[bool, np.ndarray, np.ndarray]:
+    def check_convexity(self, n_points: int = 1000) -> tuple[bool, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Check if the nuclear shape is convex by analyzing its curvature.
 
         Args:
@@ -175,40 +175,7 @@ class NuclearShapeCalculator:
         # A shape is convex if its curvature is positive everywhere
         is_convex = np.all(curvature > 0)
 
-        return is_convex, theta, curvature
-
-    def check_convexity2(self, n_points: int = 1000) -> tuple[bool, np.ndarray, np.ndarray]:
-        """Check if the nuclear shape is convex by analyzing its curvature.
-
-        Args:
-            n_points: Number of points for discretization
-
-        Returns:
-            tuple containing:
-                - bool: True if shape is convex
-                - np.ndarray: theta values where convexity was checked
-                - np.ndarray: curvature values at each point
-        """
-        theta = np.linspace(0, 2 * np.pi, n_points)
-        h = theta[1] - theta[0]  # Step size
-
-        # Calculate radius and its derivatives
-        r = self.calculate_radius(theta)
-
-        # First derivative using central difference
-        dr = np.gradient(r, h)
-
-        # Second derivative using central difference
-        d2r = np.gradient(dr, h)
-
-        # Calculate curvature in polar coordinates
-        # κ = (r² + 2(dr/dθ)² - r(d²r/dθ²)) / (r² + (dr/dθ)²)^(3/2)
-        curvature = (r ** 2 + 2 * dr ** 2 - r * d2r) / (r ** 2 + dr ** 2) ** (3 / 2)
-
-        # A shape is convex if its curvature is positive everywhere
-        is_convex = np.all(curvature > 0)
-
-        return is_convex, theta, curvature
+        return is_convex, theta, dr, d2r, curvature
 
 
 class ShapeAnalyzer:
@@ -621,7 +588,15 @@ class NuclearShapePlotter:
         self.sphere_line, = self.ax_plot.plot(sphere_x, sphere_y, '--', color='gray', alpha=0.5, label='R₀')
 
         # Add convexity check
-        is_convex, convexity_theta, curvature = calculator.check_convexity()
+        is_convex, convexity_theta, dr, d2r, curvature = calculator.check_convexity()
+
+        dr_negative, d2r_negative = False, False
+
+        if np.any(dr < 0):
+            dr_negative = True
+
+        if np.any(d2r < 0):
+            d2r_negative = True
 
         # Update information display
         self.volume_text.set_text(
@@ -638,6 +613,8 @@ class NuclearShapePlotter:
             f'Neck Thickness (45°-135°, green): {neck_thickness_45_135:.2f} fm\n'
             f'Neck Thickness (30°-150°, purple): {neck_thickness_30_150:.2f} fm\n'
             f'Shape is{" " if is_convex else " not "}convex\n' +
+            f'Dr is{" " if not dr_negative else " not "}negative\n' +
+            f'D2r is{" " if not d2r_negative else " not "}negative\n' +
             ('Negative radius detected!\n' if negative_radius else '')
         )
 
