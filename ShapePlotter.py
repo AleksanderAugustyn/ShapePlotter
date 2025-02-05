@@ -272,7 +272,7 @@ class NuclearShapePlotter:
         self.fig = plt.figure(figsize=(20, 8))
 
         # Create three subplots
-        self.ax_radius = self.fig.add_subplot(131)  # New R(θ) plot
+        self.ax_radius = self.fig.add_subplot(131)  # R(θ) plot with derivatives
         self.ax_plot = self.fig.add_subplot(132)  # Nuclear shape plot
         self.ax_text = self.fig.add_subplot(133)  # Text information
 
@@ -292,9 +292,9 @@ class NuclearShapePlotter:
 
         # Set up the radius plot with range from 0 to pi
         self.ax_radius.grid(True)
-        self.ax_radius.set_title('R(θ)', fontsize=18)
+        self.ax_radius.set_title('R(θ) and Derivatives', fontsize=18)
         self.ax_radius.set_xlabel('θ (radians)', fontsize=18)
-        self.ax_radius.set_ylabel('R (fm)', fontsize=18)
+        self.ax_radius.set_ylabel('Value', fontsize=18)
         self.ax_radius.set_xlim(0, np.pi)
         self.theta_radius = np.linspace(0, np.pi, 1000)  # Separate theta array for radius plot
 
@@ -309,11 +309,24 @@ class NuclearShapePlotter:
         calculator = NuclearShapeCalculator(self.nuclear_params)
         radius = calculator.calculate_radius(self.theta)
         radius_plot = calculator.calculate_radius(self.theta_radius)
+
+        # Calculate derivatives
+        h = self.theta_radius[1] - self.theta_radius[0]
+        dr = np.gradient(radius_plot, h)
+        d2r = np.gradient(dr, h)
+
         x = radius * np.sin(self.theta)
         y = radius * np.cos(self.theta)
 
         self.line, = self.ax_plot.plot(x, y)
-        self.radius_line, = self.ax_radius.plot(self.theta_radius, radius_plot)
+        self.radius_line, = self.ax_radius.plot(self.theta_radius, radius_plot,
+                                                label='R(θ)', color='blue')
+        self.dr_line, = self.ax_radius.plot(self.theta_radius, dr,
+                                            label='dR/dθ', color='red', linestyle='--')
+        self.d2r_line, = self.ax_radius.plot(self.theta_radius, d2r,
+                                             label='d²R/dθ²', color='green', linestyle=':')
+
+        self.ax_radius.legend(fontsize=12)
 
         # Create a text box for volume information
         self.volume_text = self.ax_text.text(0.1, 0.25, '', fontsize=24)
@@ -516,9 +529,17 @@ class NuclearShapePlotter:
         # Update shape plot data
         self.line.set_data(plot_x, plot_y)
 
-        # Update radius plot data
+        # Calculate radius and derivatives for the radius plot
         plot_radius_half = calculator.calculate_radius(self.theta_radius)
+        h = self.theta_radius[1] - self.theta_radius[0]
+        dr = np.gradient(plot_radius_half, h)
+        d2r = np.gradient(dr, h)
+
+        # Update radius plot data
         self.radius_line.set_data(self.theta_radius, plot_radius_half)
+        self.dr_line.set_data(self.theta_radius, dr)
+        self.d2r_line.set_data(self.theta_radius, d2r)
+
         self.ax_radius.relim()
         self.ax_radius.autoscale_view()
 
