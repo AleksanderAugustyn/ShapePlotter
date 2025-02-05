@@ -214,6 +214,9 @@ class NuclearShapePlotter:
 
     def __init__(self):
         """Initialize the plotter with default settings."""
+        self.theta_radius = None
+        self.radius_line = None
+        self.ax_radius = None
         self.sphere_line = None
         self.root = None
         self.submit_button = None
@@ -266,12 +269,16 @@ class NuclearShapePlotter:
 
     def create_figure(self):
         """Create and set up the matplotlib figure."""
-        self.fig = plt.figure(figsize=(15, 8))
-        self.ax_plot = self.fig.add_subplot(121)
-        self.ax_text = self.fig.add_subplot(122)
+        self.fig = plt.figure(figsize=(20, 8))
+
+        # Create three subplots
+        self.ax_radius = self.fig.add_subplot(131)  # New R(θ) plot
+        self.ax_plot = self.fig.add_subplot(132)  # Nuclear shape plot
+        self.ax_text = self.fig.add_subplot(133)  # Text information
+
         self.ax_text.axis('off')
 
-        plt.subplots_adjust(left=0.1, bottom=0.48, right=0.9, top=0.98)
+        plt.subplots_adjust(left=0.05, bottom=0.48, right=0.95, top=0.98, wspace=0.3)
 
         # Add keyboard input instructions
         self.ax_text.text(0.1, 0.25, 'Keyboard Input Format (works with Ctrl+V):\n'
@@ -283,6 +290,14 @@ class NuclearShapePlotter:
         self.error_text = self.ax_text.text(0.1, 0.15, '', color='red', fontsize=12,
                                             verticalalignment='top')
 
+        # Set up the radius plot with range from 0 to pi
+        self.ax_radius.grid(True)
+        self.ax_radius.set_title('R(θ)', fontsize=18)
+        self.ax_radius.set_xlabel('θ (radians)', fontsize=18)
+        self.ax_radius.set_ylabel('R (fm)', fontsize=18)
+        self.ax_radius.set_xlim(0, np.pi)
+        self.theta_radius = np.linspace(0, np.pi, 1000)  # Separate theta array for radius plot
+
         # Set up the main plot
         self.ax_plot.set_aspect('equal')
         self.ax_plot.grid(True)
@@ -290,12 +305,15 @@ class NuclearShapePlotter:
         self.ax_plot.set_xlabel('X (fm)', fontsize=18)
         self.ax_plot.set_ylabel('Y (fm)', fontsize=18)
 
-        # Initialize the shape plot
+        # Initialize the plots
         calculator = NuclearShapeCalculator(self.nuclear_params)
         radius = calculator.calculate_radius(self.theta)
+        radius_plot = calculator.calculate_radius(self.theta_radius)
         x = radius * np.sin(self.theta)
         y = radius * np.cos(self.theta)
+
         self.line, = self.ax_plot.plot(x, y)
+        self.radius_line, = self.ax_radius.plot(self.theta_radius, radius_plot)
 
         # Create a text box for volume information
         self.volume_text = self.ax_text.text(0.1, 0.25, '', fontsize=24)
@@ -495,8 +513,14 @@ class NuclearShapePlotter:
         plot_x = plot_radius * np.cos(self.theta)
         plot_y = plot_radius * np.sin(self.theta)
 
-        # Update plot data
+        # Update shape plot data
         self.line.set_data(plot_x, plot_y)
+
+        # Update radius plot data
+        plot_radius_half = calculator.calculate_radius(self.theta_radius)
+        self.radius_line.set_data(self.theta_radius, plot_radius_half)
+        self.ax_radius.relim()
+        self.ax_radius.autoscale_view()
 
         # Initialize shape analyzer
         analyzer = ShapeAnalyzer(plot_x, plot_y, self.theta)
