@@ -214,6 +214,8 @@ class NuclearShapePlotter:
 
     def __init__(self):
         """Initialize the plotter with default settings."""
+        self.dr_line = None
+        self.d2r_line = None
         self.theta_radius = None
         self.radius_line = None
         self.ax_radius = None
@@ -270,24 +272,25 @@ class NuclearShapePlotter:
     def create_figure(self):
         """Create and set up the matplotlib figure."""
         self.fig = plt.figure(figsize=(20, 8))
+        gs = self.fig.add_gridspec(1, 3, width_ratios=[1, 1, 1.2])
 
-        # Create three subplots
-        self.ax_radius = self.fig.add_subplot(131)  # R(θ) plot with derivatives
-        self.ax_plot = self.fig.add_subplot(132)  # Nuclear shape plot
-        self.ax_text = self.fig.add_subplot(133)  # Text information
+        # Create three subplots using gridspec
+        self.ax_radius = self.fig.add_subplot(gs[0])  # R(θ) plot with derivatives
+        self.ax_plot = self.fig.add_subplot(gs[1])  # Nuclear shape plot
+        self.ax_text = self.fig.add_subplot(gs[2])  # Text information
 
         self.ax_text.axis('off')
 
-        plt.subplots_adjust(left=0.05, bottom=0.48, right=0.95, top=0.98, wspace=0.3)
+        plt.subplots_adjust(left=0.05, bottom=0.48, right=0.95, top=0.98, wspace=0.2)
 
         # Add keyboard input instructions
-        self.ax_text.text(0.1, 0.25, 'Keyboard Input Format (works with Ctrl+V):\n'
-                                     'Z N β10 β20 β30 β40 β50 β60 β70 β80 β90 β100 β110 β120\n'
-                                     'Example: 102 154 0.0 0.5 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0',
+        self.ax_text.text(0.02, 0.25, 'Keyboard Input Format (works with Ctrl+V):\n'
+                                      'Z N β10 β20 β30 β40 β50 β60 β70 β80 β90 β100 β110 β120\n'
+                                      'Example: 102 154 0.0 0.5 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0',
                           fontsize=12, verticalalignment='top')
 
         # Add error message text (initially empty)
-        self.error_text = self.ax_text.text(0.1, 0.15, '', color='red', fontsize=12,
+        self.error_text = self.ax_text.text(0.02, 0.15, '', color='red', fontsize=12,
                                             verticalalignment='top')
 
         # Set up the radius plot with range from 0 to pi
@@ -635,14 +638,6 @@ class NuclearShapePlotter:
         # Add convexity check
         is_convex, convexity_theta, dr, d2r, curvature = calculator.check_convexity()
 
-        dr_negative, d2r_negative = False, False
-
-        if np.any(dr < 0):
-            dr_negative = True
-
-        if np.any(d2r < 0):
-            d2r_negative = True
-
         # Update information display
         self.volume_text.set_text(
             f'Sphere Volume: {sphere_volume:.4f} fm³\n'
@@ -658,8 +653,6 @@ class NuclearShapePlotter:
             f'Neck Thickness (45°-135°, green): {neck_thickness_45_135:.2f} fm\n'
             f'Neck Thickness (30°-150°, purple): {neck_thickness_30_150:.2f} fm\n'
             f'Shape is{" " if is_convex else " not "}convex\n' +
-            f'Dr is{" " if not dr_negative else " not "}negative\n' +
-            f'D2r is{" " if not d2r_negative else " not "}negative\n' +
             ('Negative radius detected!\n' if negative_radius else '')
         )
 
