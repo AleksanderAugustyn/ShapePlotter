@@ -206,23 +206,23 @@ class NuclearShapeCalculator:
 
         return sign_changes <= 1
 
-    def check_r_sin_theta_decreasing(self, n_points: int = 2000) -> bool:
-        """Check if R(theta)*sin(theta) is not decreasing for theta in (0, pi).
+    def check_r_cos_theta_increasing(self, n_points: int = 2000) -> bool:
+        """Check if R(theta)*cos(theta) is not increasing for theta in (0, pi).
 
         Args:
             n_points: Number of points for discretization
 
         Returns:
-            bool: True if R(theta)*sin(theta) is not decreasing, False otherwise.
+            bool: True if R(theta)*cos(theta) is not increasing, False otherwise.
         """
         theta = np.linspace(0, np.pi, n_points)
         r = self.calculate_radius(theta)
-        r_sin_theta = r * np.sin(theta)
+        r_cos_theta = r * np.cos(theta)
 
-        # Check if r_sin_theta is non-decreasing
-        is_non_decreasing = np.all(np.diff(r_sin_theta) >= 0)
+        # Check if r_sin_theta is non-increasing
+        is_non_increasing = np.all(np.diff(r_cos_theta) <= 0)
 
-        return is_non_decreasing
+        return is_non_increasing
 
 
 class ShapeAnalyzer:
@@ -671,6 +671,7 @@ class NuclearShapePlotter:
         volume_mismatch = abs(sphere_volume - shape_volume_integration) > 1.0
         negative_radius = np.any(plot_radius < 0)
         derivative_sign_changes_ok = calculator.check_derivative_sign_changes()
+        r_cos_theta_non_increasing = calculator.check_r_cos_theta_increasing()
 
         # Clear old beta plot if it exists
         if self.sphere_line is not None:
@@ -698,7 +699,8 @@ class NuclearShapePlotter:
             f'Neck Thickness (45°-135°, green): {neck_thickness_45_135:.2f} fm\n'
             f'Neck Thickness (30°-150°, purple): {neck_thickness_30_150:.2f} fm\n' +
             ('Negative radius detected!\n' if negative_radius else '') +
-            (f'dR/dθ sign changes OK: {"✓" if derivative_sign_changes_ok else "✗"}\n')
+            f'dR/dθ sign changes OK: {"✓" if derivative_sign_changes_ok else "✗"}\n' +
+            f'Rcos(θ) non-increasing: {"✓" if r_cos_theta_non_increasing else "✗"}'
         )
 
         # Update the legend
