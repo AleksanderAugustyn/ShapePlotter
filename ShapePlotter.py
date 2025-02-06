@@ -272,7 +272,7 @@ class NuclearShapePlotter:
     def create_figure(self):
         """Create and set up the matplotlib figure."""
         self.fig = plt.figure(figsize=(20, 8))
-        gs = self.fig.add_gridspec(1, 3, width_ratios=[1, 1, 1.2])
+        gs = self.fig.add_gridspec(ncols=3, width_ratios=[1, 1, 1.2])
 
         # Create three subplots using gridspec
         self.ax_radius = self.fig.add_subplot(gs[0])  # R(θ) plot with derivatives
@@ -635,9 +635,6 @@ class NuclearShapePlotter:
         sphere_y = R_0 * np.sin(sphere_theta)
         self.sphere_line, = self.ax_plot.plot(sphere_x, sphere_y, '--', color='gray', alpha=0.5, label='R₀')
 
-        # Add convexity check
-        is_convex, convexity_theta, dr, d2r, curvature = calculator.check_convexity()
-
         # Update information display
         self.volume_text.set_text(
             f'Sphere Volume: {sphere_volume:.4f} fm³\n'
@@ -651,8 +648,7 @@ class NuclearShapePlotter:
             f'Length Along X Axis (red): {along_x_length:.2f} fm\n'
             f'Length Along Y Axis (blue): {along_y_length:.2f} fm\n'
             f'Neck Thickness (45°-135°, green): {neck_thickness_45_135:.2f} fm\n'
-            f'Neck Thickness (30°-150°, purple): {neck_thickness_30_150:.2f} fm\n'
-            f'Shape is{" " if is_convex else " not "}convex\n' +
+            f'Neck Thickness (30°-150°, purple): {neck_thickness_30_150:.2f} fm\n' +
             ('Negative radius detected!\n' if negative_radius else '')
         )
 
