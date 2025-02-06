@@ -129,7 +129,7 @@ class NuclearShapeCalculator:
         sphere_volume = self.calculate_sphere_volume()
         return sphere_volume / initial_volume
 
-    def calculate_volume_by_integration(self, n_theta: int = 400) -> float:
+    def calculate_volume_by_integration(self, n_theta: int = 1000) -> float:
         """Calculate nucleus volume by numerical integration.
 
         Args:
@@ -144,7 +144,7 @@ class NuclearShapeCalculator:
 
         return integrate.trapezoid(integrand, theta)
 
-    def check_convexity(self, n_points: int = 1000) -> tuple[bool, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    def check_convexity(self, n_points: int = 2000) -> tuple[bool, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Check if the nuclear shape is convex by analyzing its curvature.
 
         Args:
@@ -177,7 +177,7 @@ class NuclearShapeCalculator:
 
         return is_convex, theta, dr, d2r, curvature
 
-    def check_derivative_sign_changes(self, n_points: int = 2000) -> bool:
+    def check_derivative_sign_changes(self, n_points: int = 1000) -> bool:
         """Check if the first derivative of R(theta) changes sign at most once.
 
         Args:
@@ -206,7 +206,7 @@ class NuclearShapeCalculator:
 
         return sign_changes <= 1
 
-    def check_r_cos_theta_increasing(self, n_points: int = 2000) -> bool:
+    def check_r_cos_theta_increasing(self, n_points: int = 1000) -> bool:
         """Check if R(theta)*cos(theta) is not increasing for theta in (0, pi).
 
         Args:
@@ -261,6 +261,8 @@ class NuclearShapePlotter:
 
     def __init__(self):
         """Initialize the plotter with default settings."""
+        self.r_sin_theta_line = None
+        self.r_cos_theta_line = None
         self.dr_line = None
         self.d2r_line = None
         self.theta_radius = None
@@ -369,16 +371,11 @@ class NuclearShapePlotter:
         y = radius * np.cos(self.theta)
 
         self.line, = self.ax_plot.plot(x, y)
-        self.radius_line, = self.ax_radius.plot(self.theta_radius, radius_plot,
-                                                label='R(θ)', color='blue')
-        self.dr_line, = self.ax_radius.plot(self.theta_radius, dr,
-                                            label='dR/dθ', color='red', linestyle='--')
-        self.d2r_line, = self.ax_radius.plot(self.theta_radius, d2r,
-                                             label='d²R/dθ²', color='green', linestyle=':')
-        self.r_cos_theta_line, = self.ax_radius.plot(self.theta_radius, radius_plot * np.cos(self.theta_radius),
-                                             label='R(θ)cos(θ)', color='orange', linestyle='-.')
-        self.r_sin_theta_line, = self.ax_radius.plot(self.theta_radius, radius_plot * np.sin(self.theta_radius),
-                                             label='R(θ)sin(θ)', color='purple', linestyle=':')
+        self.radius_line, = self.ax_radius.plot(self.theta_radius, radius_plot, label='R(θ)', color='blue')
+        self.dr_line, = self.ax_radius.plot(self.theta_radius, dr, label='dR/dθ', color='red', linestyle='--')
+        self.d2r_line, = self.ax_radius.plot(self.theta_radius, d2r, label='d²R/dθ²', color='green', linestyle=':')
+        self.r_cos_theta_line, = self.ax_radius.plot(self.theta_radius, radius_plot * np.cos(self.theta_radius), label='R(θ)cos(θ)', color='orange', linestyle='-.')
+        self.r_sin_theta_line, = self.ax_radius.plot(self.theta_radius, radius_plot * np.sin(self.theta_radius), label='R(θ)sin(θ)', color='purple', linestyle=':')
 
         self.ax_radius.legend(fontsize=12)
 
