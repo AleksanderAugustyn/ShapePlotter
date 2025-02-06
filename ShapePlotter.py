@@ -331,7 +331,7 @@ class NuclearShapePlotter:
         plt.subplots_adjust(left=0.05, bottom=0.48, right=0.95, top=0.98, wspace=0.2)
 
         # Add keyboard input instructions
-        self.ax_text.text(0.02, 0.25, 'Keyboard Input Format (works with Ctrl+V):\n'
+        self.ax_text.text(0.02, 0.22, 'Keyboard Input Format (works with Ctrl+V):\n'
                                       'Z N β10 β20 β30 β40 β50 β60 β70 β80 β90 β100 β110 β120\n'
                                       'Example: 102 154 0.0 0.5 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0',
                           fontsize=12, verticalalignment='top')
