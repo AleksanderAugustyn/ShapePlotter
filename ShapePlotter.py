@@ -177,6 +177,35 @@ class NuclearShapeCalculator:
 
         return is_convex, theta, dr, d2r, curvature
 
+    def check_derivative_sign_changes(self, n_points: int = 1000) -> bool:
+        """Check if the first derivative of R(theta) changes sign at most once.
+
+        Args:
+            n_points: Number of points for discretization
+
+        Returns:
+            bool: True if the sign of the first derivative changes at most once, False otherwise.
+        """
+        theta = np.linspace(0, 2 * np.pi, n_points)
+        h = theta[1] - theta[0]  # Step size
+
+        # Calculate radius and its derivatives
+        r = self.calculate_radius(theta)
+
+        # First derivative using central difference
+        dr = np.gradient(r, h)
+
+        sign_changes = 0
+        previous_sign = np.sign(dr[0])
+        for i in range(1, len(dr)):
+            current_sign = np.sign(dr[i])
+            if current_sign != 0 and current_sign != previous_sign and previous_sign != 0:
+                sign_changes += 1
+            if current_sign != 0:
+                previous_sign = current_sign
+
+        return sign_changes <= 1
+
 
 class ShapeAnalyzer:
     """Class for analyzing nuclear shapes and finding key measurements."""
@@ -623,6 +652,7 @@ class NuclearShapePlotter:
         # Check calculations
         volume_mismatch = abs(sphere_volume - shape_volume_integration) > 1.0
         negative_radius = np.any(plot_radius < 0)
+        derivative_sign_changes_ok = calculator.check_derivative_sign_changes()
 
         # Clear old beta plot if it exists
         if self.sphere_line is not None:
@@ -649,7 +679,8 @@ class NuclearShapePlotter:
             f'Length Along Y Axis (blue): {along_y_length:.2f} fm\n'
             f'Neck Thickness (45°-135°, green): {neck_thickness_45_135:.2f} fm\n'
             f'Neck Thickness (30°-150°, purple): {neck_thickness_30_150:.2f} fm\n' +
-            ('Negative radius detected!\n' if negative_radius else '')
+            ('Negative radius detected!\n' if negative_radius else '') +
+            (f'dR/dθ sign changes OK: {"✓" if derivative_sign_changes_ok else "✗"}\n')
         )
 
         # Update the legend
