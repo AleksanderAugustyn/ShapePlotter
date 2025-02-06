@@ -375,6 +375,10 @@ class NuclearShapePlotter:
                                             label='dR/dθ', color='red', linestyle='--')
         self.d2r_line, = self.ax_radius.plot(self.theta_radius, d2r,
                                              label='d²R/dθ²', color='green', linestyle=':')
+        self.r_cos_theta_line, = self.ax_radius.plot(self.theta_radius, radius_plot * np.cos(self.theta_radius),
+                                             label='R(θ)cos(θ)', color='orange', linestyle='-.')
+        self.r_sin_theta_line, = self.ax_radius.plot(self.theta_radius, radius_plot * np.sin(self.theta_radius),
+                                             label='R(θ)sin(θ)', color='purple', linestyle=':')
 
         self.ax_radius.legend(fontsize=12)
 
