@@ -177,7 +177,7 @@ class NuclearShapeCalculator:
 
         return is_convex, theta, dr, d2r, curvature
 
-    def check_derivative_sign_changes(self, n_points: int = 1000) -> bool:
+    def check_derivative_sign_changes(self, n_points: int = 2000) -> bool:
         """Check if the first derivative of R(theta) changes sign at most once.
 
         Args:
@@ -186,7 +186,7 @@ class NuclearShapeCalculator:
         Returns:
             bool: True if the sign of the first derivative changes at most once, False otherwise.
         """
-        theta = np.linspace(0, 2 * np.pi, n_points)
+        theta = np.linspace(0, np.pi, n_points)
         h = theta[1] - theta[0]  # Step size
 
         # Calculate radius and its derivatives
