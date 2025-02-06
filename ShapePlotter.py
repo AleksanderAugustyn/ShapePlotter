@@ -206,6 +206,24 @@ class NuclearShapeCalculator:
 
         return sign_changes <= 1
 
+    def check_r_sin_theta_decreasing(self, n_points: int = 2000) -> bool:
+        """Check if R(theta)*sin(theta) is not decreasing for theta in (0, pi).
+
+        Args:
+            n_points: Number of points for discretization
+
+        Returns:
+            bool: True if R(theta)*sin(theta) is not decreasing, False otherwise.
+        """
+        theta = np.linspace(0, np.pi, n_points)
+        r = self.calculate_radius(theta)
+        r_sin_theta = r * np.sin(theta)
+
+        # Check if r_sin_theta is non-decreasing
+        is_non_decreasing = np.all(np.diff(r_sin_theta) >= 0)
+
+        return is_non_decreasing
+
 
 class ShapeAnalyzer:
     """Class for analyzing nuclear shapes and finding key measurements."""
