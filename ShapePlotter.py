@@ -321,6 +321,7 @@ class NuclearShapePlotter:
     def create_figure(self):
         """Create and set up the matplotlib figure."""
         self.fig = plt.figure(figsize=(20, 8))
+        # self.fig.set_layout_engine('constrained')
         gs = self.fig.add_gridspec(ncols=3, width_ratios=[1, 1, 1.2])
 
         # Create three subplots using gridspec
@@ -711,6 +712,7 @@ class NuclearShapePlotter:
     def run(self):
         """Start the interactive plotting interface."""
         self.update_plot()
+        # plt.tight_layout()
         plt.show(block=True)
 
 
