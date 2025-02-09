@@ -269,8 +269,9 @@ class NuclearShapePlotter:
         self.screen_dpi = root.winfo_fpixels('1i')
         root.destroy()
 
-        # Calculate base font size based on screen resolution
-        self.base_font_size = min(self.screen_width, self.screen_height) / 100
+        # Calculate base font size based on screen resolution with enhanced scaling
+        base_scale = min(self.screen_width, self.screen_height) / 1080  # Scale relative to 1080p
+        self.base_font_size = 14 * base_scale  # Start from reasonable base size
 
         # Nuclear physics parameters
         self.initial_z = 102
@@ -354,9 +355,12 @@ class NuclearShapePlotter:
         fig_width_px = self.fig.get_size_inches()[0] * self.fig.dpi
         fig_height_px = self.fig.get_size_inches()[1] * self.fig.dpi
         
-        # Calculate scaling factor based on figure size relative to screen
-        scale = min(fig_width_px / self.screen_width, fig_height_px / self.screen_height)
-        print(f"Scale: {scale}")
+        # Calculate window scaling factor
+        window_scale = min(fig_width_px / self.screen_width, fig_height_px / self.screen_height)
+        
+        # Enhanced scaling that prevents fonts from getting too small
+        scale = max(window_scale, 0.5)  # Minimum scale factor of 0.5
+        
         return self.base_font_size * scale * size_factor
 
     def create_figure(self):
