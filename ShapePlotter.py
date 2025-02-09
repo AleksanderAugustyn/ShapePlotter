@@ -333,8 +333,11 @@ class NuclearShapePlotter:
 
         plt.subplots_adjust(left=0.05, bottom=0.48, right=0.95, top=0.98, wspace=0.2)
 
+        # Create a text box for volume information
+        self.volume_text = self.ax_text.text(0.0, 0.25, '', fontsize=24)
+
         # Add keyboard input instructions
-        self.ax_text.text(0.02, 0.22, 'Keyboard Input Format (works with Ctrl+V):\n'
+        self.ax_text.text(0.00, 0.22, 'Keyboard Input Format (works with Ctrl+V):\n'
                                       'Z N β10 β20 β30 β40 β50 β60 β70 β80 β90 β100 β110 β120\n'
                                       'Example: 102 154 0.0 0.5 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0',
                           fontsize=12, verticalalignment='top')
@@ -372,16 +375,13 @@ class NuclearShapePlotter:
         y = radius * np.cos(self.theta)
 
         self.line, = self.ax_plot.plot(x, y)
-        self.radius_line, = self.ax_radius.plot(self.theta_radius, radius_plot, label='R(θ)', color='blue')
-        self.dr_line, = self.ax_radius.plot(self.theta_radius, dr, label='dR/dθ', color='red', linestyle='--')
-        self.d2r_line, = self.ax_radius.plot(self.theta_radius, d2r, label='d²R/dθ²', color='green', linestyle=':')
-        self.r_cos_theta_line, = self.ax_radius.plot(self.theta_radius, radius_plot * np.cos(self.theta_radius), label='R(θ)cos(θ)', color='orange', linestyle='-.')
-        self.r_sin_theta_line, = self.ax_radius.plot(self.theta_radius, radius_plot * np.sin(self.theta_radius), label='R(θ)sin(θ)', color='purple', linestyle=':')
+        self.radius_line, = self.ax_radius.plot(self.theta_radius, radius_plot, label='R(θ)', color='blue', linewidth=2.0, linestyle='solid')
+        self.dr_line, = self.ax_radius.plot(self.theta_radius, dr, label='dR/dθ', color='red', linewidth=2.0, linestyle='dotted')
+        self.d2r_line, = self.ax_radius.plot(self.theta_radius, d2r, label='d²R/dθ²', color='green', linewidth=2.0, linestyle='dashdot')
+        self.r_cos_theta_line, = self.ax_radius.plot(self.theta_radius, radius_plot * np.cos(self.theta_radius), label='R(θ)cos(θ)', color='orange', linewidth=2.0, linestyle='dashed')
+        self.r_sin_theta_line, = self.ax_radius.plot(self.theta_radius, radius_plot * np.sin(self.theta_radius), label='R(θ)sin(θ)', color='purple', linewidth=2.0, linestyle=(0, (5, 10)))  # loosely dashed
 
         self.ax_radius.legend(fontsize=12)
-
-        # Create a text box for volume information
-        self.volume_text = self.ax_text.text(0.1, 0.25, '', fontsize=24)
 
     def setup_controls(self):
         """Set up all UI controls."""
@@ -613,13 +613,15 @@ class NuclearShapePlotter:
         self.ax_plot.x_axis_line = self.ax_plot.plot(
             [x_axis_negative[0], x_axis_positive[0]],
             [x_axis_negative[1], x_axis_positive[1]],
-            color='red'
+            color='red',
+            label='X Axis'
         )[0]
 
         self.ax_plot.y_axis_line = self.ax_plot.plot(
             [y_axis_negative[0], y_axis_positive[0]],
             [y_axis_negative[1], y_axis_positive[1]],
-            color='blue'
+            color='blue',
+            label='Y Axis'
         )[0]
 
         # Calculate and draw necks
@@ -706,7 +708,8 @@ class NuclearShapePlotter:
         )
 
         # Update the legend
-        self.ax_plot.legend(fontsize='small', loc='upper right')
+        self.ax_plot.legend(fontsize='small', loc='lower left')
+        self.ax_radius.legend(fontsize='small', loc='lower left')
         self.fig.canvas.draw_idle()
 
     def run(self):
