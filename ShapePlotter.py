@@ -3,6 +3,7 @@ Nuclear Shape Plotter - A program to visualize and analyze nuclear shapes using 
 This version implements an object-oriented design for better organization and maintainability.
 """
 
+import tkinter as tk
 import warnings
 from dataclasses import dataclass, field
 from typing import Any, List, Tuple
@@ -320,43 +321,74 @@ class NuclearShapePlotter:
 
     def create_figure(self):
         """Create and set up the matplotlib figure."""
-        self.fig = plt.figure(figsize=(20, 8))
-        # self.fig.set_layout_engine('constrained')
+        # Get screen dimensions using Tkinter
+        root = tk.Tk()
+
+        # Get screen dimensions in pixels
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+
+        # Get screen dimensions in millimeters
+        screen_width_mm = root.winfo_screenmmwidth()
+        screen_height_mm = root.winfo_screenmmheight()
+
+        # Get screen dimensions in inches
+        screen_width_in = screen_width_mm / 25.4
+        screen_height_in = screen_height_mm / 25.4
+
+        # Calculate actual DPI
+        dpi_x = screen_width / screen_width_in
+        dpi_y = screen_height / screen_height_in
+
+        # Use average DPI for calculations
+        avg_dpi = (dpi_x + dpi_y) / 2
+
+        # Calculate base font size using DPI
+        base_fontsize = 12 * (96 / avg_dpi)  # 96 is the reference DPI
+
+        # Ensure font size stays within reasonable bounds
+        # base_fontsize = max(8, min(16, base_fontsize))
+
+        root.destroy()
+
+        self.fig = plt.figure(figsize=(screen_width_in, screen_height_in))
         gs = self.fig.add_gridspec(ncols=3, width_ratios=[1, 1, 1.2])
 
         # Create three subplots using gridspec
-        self.ax_radius = self.fig.add_subplot(gs[0])  # R(θ) plot with derivatives
-        self.ax_plot = self.fig.add_subplot(gs[1])  # Nuclear shape plot
-        self.ax_text = self.fig.add_subplot(gs[2])  # Text information
+        self.ax_radius = self.fig.add_subplot(gs[0])
+        self.ax_plot = self.fig.add_subplot(gs[1])
+        self.ax_text = self.fig.add_subplot(gs[2])
 
         self.ax_text.axis('off')
 
-        plt.subplots_adjust(left=0.05, bottom=0.48, right=0.95, top=0.98, wspace=0.2)
+        # Use relative positioning for subplots
+        plt.subplots_adjust(left=0.05, bottom=0.35, right=0.95, top=0.95, wspace=0.2)
 
-        # Add keyboard input instructions
-        self.ax_text.text(0.02, 0.22, 'Keyboard Input Format (works with Ctrl+V):\n'
-                                      'Z N β10 β20 β30 β40 β50 β60 β70 β80 β90 β100 β110 β120\n'
-                                      'Example: 102 154 0.0 0.5 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0',
-                          fontsize=12, verticalalignment='top')
+        # Add keyboard input instructions with scaled font size
+        self.ax_text.text(0.0, 0.22, 'Keyboard Input Format (works with Ctrl+V):\n'
+                                     'Z N β10 β20 β30 β40 β50 β60 β70 β80 β90 β100 β110 β120\n'
+                                     'Example: 102 154 0.0 0.5 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0',
+                          fontsize=0.5 * base_fontsize, verticalalignment='top')
 
-        # Add error message text (initially empty)
-        self.error_text = self.ax_text.text(0.02, 0.15, '', color='red', fontsize=12,
-                                            verticalalignment='top')
+        # Add error message text with scaled font size
+        self.error_text = self.ax_text.text(0.0, 0.15, '', color='red',
+                                            fontsize=0.5 * base_fontsize, verticalalignment='top')
 
-        # Set up the radius plot with range from 0 to pi
+        # Set up the radius plot
         self.ax_radius.grid(True)
-        self.ax_radius.set_title('R(θ) and Derivatives', fontsize=18)
-        self.ax_radius.set_xlabel('θ (radians)', fontsize=18)
-        self.ax_radius.set_ylabel('Value', fontsize=18)
+        self.ax_radius.set_title('R(θ) and Derivatives', fontsize=base_fontsize)
+        self.ax_radius.set_xlabel('θ (radians)', fontsize=base_fontsize)
+        self.ax_radius.set_ylabel('Value', fontsize=base_fontsize)
         self.ax_radius.set_xlim(0, np.pi)
-        self.theta_radius = np.linspace(0, np.pi, 1000)  # Separate theta array for radius plot
+        self.theta_radius = np.linspace(0, np.pi, 1000)
 
         # Set up the main plot
         self.ax_plot.set_aspect('equal')
         self.ax_plot.grid(True)
-        self.ax_plot.set_title('Nuclear Shape with Volume Conservation', fontsize=18)
-        self.ax_plot.set_xlabel('X (fm)', fontsize=18)
-        self.ax_plot.set_ylabel('Y (fm)', fontsize=18)
+        self.ax_plot.set_title('Nuclear Shape with Volume Conservation',
+                               fontsize=base_fontsize)
+        self.ax_plot.set_xlabel('X (fm)', fontsize=base_fontsize)
+        self.ax_plot.set_ylabel('Y (fm)', fontsize=base_fontsize)
 
         # Initialize the plots
         calculator = NuclearShapeCalculator(self.nuclear_params)
@@ -372,59 +404,100 @@ class NuclearShapePlotter:
         y = radius * np.cos(self.theta)
 
         self.line, = self.ax_plot.plot(x, y)
-        self.radius_line, = self.ax_radius.plot(self.theta_radius, radius_plot, label='R(θ)', color='blue')
-        self.dr_line, = self.ax_radius.plot(self.theta_radius, dr, label='dR/dθ', color='red', linestyle='--')
-        self.d2r_line, = self.ax_radius.plot(self.theta_radius, d2r, label='d²R/dθ²', color='green', linestyle=':')
-        self.r_cos_theta_line, = self.ax_radius.plot(self.theta_radius, radius_plot * np.cos(self.theta_radius), label='R(θ)cos(θ)', color='orange', linestyle='-.')
-        self.r_sin_theta_line, = self.ax_radius.plot(self.theta_radius, radius_plot * np.sin(self.theta_radius), label='R(θ)sin(θ)', color='purple', linestyle=':')
+        self.radius_line, = self.ax_radius.plot(self.theta_radius, radius_plot, label='R(θ)', color='blue', linewidth=2.0, linestyle='solid')
+        self.dr_line, = self.ax_radius.plot(self.theta_radius, dr, label='dR/dθ', color='red', linewidth=2.0, linestyle='dotted')
+        self.d2r_line, = self.ax_radius.plot(self.theta_radius, d2r, label='d²R/dθ²', color='green', linewidth=2.0, linestyle='dashdot')
+        self.r_cos_theta_line, = self.ax_radius.plot(self.theta_radius, radius_plot * np.cos(self.theta_radius), label='R(θ)cos(θ)', color='orange', linewidth=2.0, linestyle='dashed')
+        self.r_sin_theta_line, = self.ax_radius.plot(self.theta_radius, radius_plot * np.sin(self.theta_radius), label='R(θ)sin(θ)', color='purple', linewidth=2.0, linestyle=(0, (5, 10)))  # loosely dashed
 
-        self.ax_radius.legend(fontsize=12)
+        self.ax_radius.legend(fontsize=base_fontsize)
 
         # Create a text box for volume information
-        self.volume_text = self.ax_text.text(0.1, 0.25, '', fontsize=24)
+        self.volume_text = self.ax_text.text(0.0, 0.8, '', fontsize=1.4 * base_fontsize, verticalalignment='top')
 
     def setup_controls(self):
         """Set up all UI controls."""
-        self.create_proton_neutron_controls()
-        self.create_beta_controls()
-        self.create_action_buttons()
-        self.create_text_input()
+        # Get screen dimensions for scaling
+        root = tk.Tk()
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+        root.destroy()
 
-    def create_proton_neutron_controls(self):
+        # Calculate base sizes and positions
+        control_height = 0.03
+        base_fontsize = min(screen_width, screen_height) / 100
+
+        # Calculate vertical spacing based on number of controls
+        total_controls = self.num_harmonics + 4  # Include Z, N controls
+        vertical_spacing = 0.3 / total_controls
+
+        self.create_proton_neutron_controls(vertical_spacing, base_fontsize)
+        self.create_beta_controls(vertical_spacing, base_fontsize)
+        self.create_action_buttons(base_fontsize)
+        self.create_text_input(base_fontsize)
+
+    def handle_resize(self, event):
+        """Handle window resize events to maintain proper scaling."""
+        # Get new window size
+        new_width = event.width
+        new_height = event.height
+
+        # Recalculate positions and sizes
+        base_fontsize = min(new_width, new_height) / 100
+
+        # Update font sizes
+        for ax in [self.ax_radius, self.ax_plot]:
+            ax.set_title(ax.get_title(), fontsize=base_fontsize * 1.2)
+            ax.set_xlabel(ax.get_xlabel(), fontsize=base_fontsize)
+            ax.set_ylabel(ax.get_ylabel(), fontsize=base_fontsize)
+
+        # Update control elements
+        for slider in self.sliders:
+            slider.label.set_fontsize(base_fontsize)
+            slider.valtext.set_fontsize(base_fontsize)
+
+        # Update text elements
+        self.volume_text.set_fontsize(base_fontsize)
+        self.error_text.set_fontsize(base_fontsize)
+
+        # Redraw the figure
+        self.fig.canvas.draw_idle()
+
+    def create_proton_neutron_controls(self, vertical_spacing, base_fontsize):
         """Create controls for proton and neutron numbers."""
         # Proton controls
-        ax_z = plt.axes((0.25, 0.00, 0.5, 0.02))
-        ax_z_decrease = plt.axes((0.16, 0.00, 0.04, 0.02))
-        ax_z_increase = plt.axes((0.80, 0.00, 0.04, 0.02))
+        ax_z = plt.axes((0.25, vertical_spacing, 0.5, 0.02))
+        ax_z_decrease = plt.axes((0.16, vertical_spacing, 0.04, 0.02))
+        ax_z_increase = plt.axes((0.80, vertical_spacing, 0.04, 0.02))
 
         self.slider_z = Slider(ax=ax_z, label='Z', valmin=82, valmax=120,
                                valinit=self.initial_z, valstep=1)
         self.btn_z_decrease = Button(ax_z_decrease, '-')
         self.btn_z_increase = Button(ax_z_increase, '+')
 
-        # Neutron controls
-        ax_n = plt.axes((0.25, 0.03, 0.5, 0.02))
-        ax_n_decrease = plt.axes((0.16, 0.03, 0.04, 0.02))
-        ax_n_increase = plt.axes((0.80, 0.03, 0.04, 0.02))
+        # Neutron controls - position at 2x vertical spacing
+        ax_n = plt.axes((0.25, 2 * vertical_spacing, 0.5, 0.02))
+        ax_n_decrease = plt.axes((0.16, 2 * vertical_spacing, 0.04, 0.02))
+        ax_n_increase = plt.axes((0.80, 2 * vertical_spacing, 0.04, 0.02))
 
         self.slider_n = Slider(ax=ax_n, label='N', valmin=100, valmax=180,
                                valinit=self.initial_n, valstep=1)
         self.btn_n_decrease = Button(ax_n_decrease, '-')
         self.btn_n_increase = Button(ax_n_increase, '+')
 
-        # Style settings
+        # Style settings with scaled fonts
         for slider in [self.slider_z, self.slider_n]:
-            slider.label.set_fontsize(18)
-            slider.valtext.set_fontsize(18)
+            slider.label.set_fontsize(base_fontsize)
+            slider.valtext.set_fontsize(base_fontsize)
 
-    def create_beta_controls(self):
+    def create_beta_controls(self, vertical_spacing, base_fontsize):
         """Create controls for beta parameters."""
-        slider_height = 0.03
-
         for i in range(self.num_harmonics):
-            ax_decrease = plt.axes((0.16, 0.06 + i * slider_height, 0.04, 0.02))
-            ax_slider = plt.axes((0.25, 0.06 + i * slider_height, 0.5, 0.02))
-            ax_increase = plt.axes((0.80, 0.06 + i * slider_height, 0.04, 0.02))
+            current_position = (i + 3) * vertical_spacing  # Start after Z and N controls
+
+            ax_decrease = plt.axes((0.16, current_position, 0.04, 0.02))
+            ax_slider = plt.axes((0.25, current_position, 0.5, 0.02))
+            ax_increase = plt.axes((0.80, current_position, 0.04, 0.02))
 
             valmin, valmax = (-1.6, 1.6) if i == 0 else (0.0, 3.0) if i == 1 else (-1.0, 1.0)
 
@@ -440,29 +513,32 @@ class NuclearShapePlotter:
             btn_decrease = Button(ax_decrease, '-')
             btn_increase = Button(ax_increase, '+')
 
-            slider.label.set_fontsize(18)
-            slider.valtext.set_fontsize(18)
+            slider.label.set_fontsize(base_fontsize)
+            slider.valtext.set_fontsize(base_fontsize)
 
             self.sliders.append(slider)
             self.decrease_buttons.append(btn_decrease)
             self.increase_buttons.append(btn_increase)
 
-    def create_action_buttons(self):
+    def create_action_buttons(self, base_fontsize):
         """Create save and reset buttons."""
-        ax_save = plt.axes((0.75, 0.45, 0.1, 0.04))
+        ax_save = plt.axes((0.75, 0.32, 0.1, 0.04))
         self.save_button = Button(ax=ax_save, label='Save Plot')
+        self.save_button.label.set_fontsize(base_fontsize)
 
-        ax_reset = plt.axes((0.86, 0.45, 0.1, 0.04))
+        ax_reset = plt.axes((0.86, 0.32, 0.1, 0.04))
         self.reset_button = Button(ax=ax_reset, label='Reset')
+        self.reset_button.label.set_fontsize(base_fontsize)
 
-    def create_text_input(self):
+    def create_text_input(self, base_fontsize):
         """Create text input field and submit button."""
-        ax_input = plt.axes((0.25, 0.42, 0.5, 0.02))
+        ax_input = plt.axes((0.25, 0.29, 0.5, 0.02))
         self.text_box = TextBox(ax_input, 'Parameters')
-        self.text_box.label.set_fontsize(12)
+        self.text_box.label.set_fontsize(base_fontsize)
 
-        ax_submit = plt.axes((0.80, 0.42, 0.1, 0.02))
+        ax_submit = plt.axes((0.80, 0.29, 0.1, 0.02))
         self.submit_button = Button(ax_submit, 'Submit')
+        self.submit_button.label.set_fontsize(base_fontsize)
 
         # Enable key events for the text box
         text_box_widget = self.text_box.ax.figure.canvas.get_tk_widget()
@@ -572,6 +648,33 @@ class NuclearShapePlotter:
             beta_values=[s.val for s in self.sliders]
         )
 
+        root = tk.Tk()
+
+        # Get screen dimensions in pixels
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+
+        # Get screen dimensions in millimeters
+        screen_width_mm = root.winfo_screenmmwidth()
+        screen_height_mm = root.winfo_screenmmheight()
+
+        # Calculate actual DPI
+        dpi_x = screen_width / (screen_width_mm / 25.4)  # Convert mm to inches
+        dpi_y = screen_height / (screen_height_mm / 25.4)
+
+        # Use average DPI for calculations
+        avg_dpi = (dpi_x + dpi_y) / 2
+
+        # Calculate base font size using DPI
+        base_fontsize = 12 * (96 / avg_dpi)  # 96 is the reference DPI
+
+        # Ensure font size stays within reasonable bounds
+        # base_fontsize = max(8, min(16, base_fontsize))
+
+        root.destroy()
+
+        base_fontsize = min(screen_width, screen_height) / 60
+
         # Calculate new shape
         calculator = NuclearShapeCalculator(current_params)
         plot_radius = calculator.calculate_radius(self.theta)
@@ -587,10 +690,21 @@ class NuclearShapePlotter:
         dr = np.gradient(plot_radius_half, h)
         d2r = np.gradient(dr, h)
 
-        # Update radius plot data
+        # Update radius plot data with proper font sizes
         self.radius_line.set_data(self.theta_radius, plot_radius_half)
+        self.radius_line.set_label('R(θ)')
+
         self.dr_line.set_data(self.theta_radius, dr)
+        self.dr_line.set_label('dR/dθ')
+
         self.d2r_line.set_data(self.theta_radius, d2r)
+        self.d2r_line.set_label('d²R/dθ²')
+
+        self.r_cos_theta_line.set_data(self.theta_radius, plot_radius_half * np.cos(self.theta_radius))
+        self.r_cos_theta_line.set_label('R(θ)cos(θ)')
+
+        self.r_sin_theta_line.set_data(self.theta_radius, plot_radius_half * np.sin(self.theta_radius))
+        self.r_sin_theta_line.set_label('R(θ)sin(θ)')
 
         self.ax_radius.relim()
         self.ax_radius.autoscale_view()
@@ -609,17 +723,19 @@ class NuclearShapePlotter:
             if hasattr(self.ax_plot, attr):
                 getattr(self.ax_plot, attr).remove()
 
-        # Draw axis lines
+        # Update axis lines with scaled labels
         self.ax_plot.x_axis_line = self.ax_plot.plot(
             [x_axis_negative[0], x_axis_positive[0]],
             [x_axis_negative[1], x_axis_positive[1]],
-            color='red'
+            color='red',
+            label='X axis'
         )[0]
 
         self.ax_plot.y_axis_line = self.ax_plot.plot(
             [y_axis_negative[0], y_axis_positive[0]],
             [y_axis_negative[1], y_axis_positive[1]],
-            color='blue'
+            color='blue',
+            label='Y axis'
         )[0]
 
         # Calculate and draw necks
@@ -635,7 +751,7 @@ class NuclearShapePlotter:
             if hasattr(self.ax_plot, attr):
                 getattr(self.ax_plot, attr).remove()
 
-        # Draw neck lines
+        # Update neck lines with scaled labels
         self.ax_plot.neck_line_45_135 = self.ax_plot.plot(
             [neck_x_45_135, neck_x_45_135],
             [-neck_thickness_45_135 / 2, neck_thickness_45_135 / 2],
@@ -679,12 +795,13 @@ class NuclearShapePlotter:
         if self.sphere_line is not None:
             self.sphere_line.remove()
 
-        # Update reference sphere
+        # Update reference sphere with scaled label
         R_0 = current_params.r0 * (current_params.nucleons ** (1 / 3))
         sphere_theta = np.linspace(0, 2 * np.pi, 200)
         sphere_x = R_0 * np.cos(sphere_theta)
         sphere_y = R_0 * np.sin(sphere_theta)
-        self.sphere_line, = self.ax_plot.plot(sphere_x, sphere_y, '--', color='gray', alpha=0.5, label='R₀')
+        self.sphere_line, = self.ax_plot.plot(sphere_x, sphere_y, '--',
+                                              color='gray', alpha=0.5, label='R₀')
 
         # Update information display
         self.volume_text.set_text(
@@ -706,13 +823,17 @@ class NuclearShapePlotter:
         )
 
         # Update the legend
-        self.ax_plot.legend(fontsize='small', loc='upper right')
+        self.ax_radius.legend(fontsize=0.8 * base_fontsize, loc='lower left')
+        self.ax_plot.legend(fontsize=0.8 * base_fontsize, loc='lower left')
         self.fig.canvas.draw_idle()
 
     def run(self):
         """Start the interactive plotting interface."""
         self.update_plot()
-        # plt.tight_layout()
+
+        # Connect resize event handler
+        self.fig.canvas.mpl_connect('resize_event', self.handle_resize)
+
         plt.show(block=True)
 
 
