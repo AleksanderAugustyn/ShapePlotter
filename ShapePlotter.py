@@ -3,6 +3,7 @@ Nuclear Shape Plotter - A program to visualize and analyze nuclear shapes using 
 This version implements an object-oriented design for better organization and maintainability.
 """
 
+import tkinter as tk
 import warnings
 from dataclasses import dataclass, field
 from typing import Any, List, Tuple
@@ -262,7 +263,6 @@ class NuclearShapePlotter:
     def __init__(self):
         """Initialize the plotter with default settings."""
         # Get screen resolution and DPI
-        import tkinter as tk
         root = tk.Tk()
         self.screen_width = root.winfo_screenwidth()
         self.screen_height = root.winfo_screenheight()
@@ -356,6 +356,7 @@ class NuclearShapePlotter:
         
         # Calculate scaling factor based on figure size relative to screen
         scale = min(fig_width_px / self.screen_width, fig_height_px / self.screen_height)
+        print(f"Scale: {scale}")
         return self.base_font_size * scale * size_factor
 
     def create_figure(self):
