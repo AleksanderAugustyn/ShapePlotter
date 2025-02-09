@@ -261,6 +261,17 @@ class NuclearShapePlotter:
 
     def __init__(self):
         """Initialize the plotter with default settings."""
+        # Get screen resolution and DPI
+        import tkinter as tk
+        root = tk.Tk()
+        self.screen_width = root.winfo_screenwidth()
+        self.screen_height = root.winfo_screenheight()
+        self.screen_dpi = root.winfo_fpixels('1i')
+        root.destroy()
+
+        # Calculate base font size based on screen resolution
+        self.base_font_size = min(self.screen_width, self.screen_height) / 100
+
         # Nuclear physics parameters
         self.initial_z = 102
         self.initial_n = 154
@@ -337,6 +348,16 @@ class NuclearShapePlotter:
         self.decrease_buttons = []
         self.increase_buttons = []
 
+    def get_font_size(self, size_factor=1.0):
+        """Calculate font size based on window size and screen resolution."""
+        # Get current figure size in pixels
+        fig_width_px = self.fig.get_size_inches()[0] * self.fig.dpi
+        fig_height_px = self.fig.get_size_inches()[1] * self.fig.dpi
+        
+        # Calculate scaling factor based on figure size relative to screen
+        scale = min(fig_width_px / self.screen_width, fig_height_px / self.screen_height)
+        return self.base_font_size * scale * size_factor
+
     def create_figure(self):
         """Create and set up the matplotlib figure."""
         self.fig = plt.figure(figsize=(20, 8))
@@ -353,33 +374,33 @@ class NuclearShapePlotter:
         plt.subplots_adjust(left=0.05, bottom=0.48, right=0.95, top=0.98, wspace=0.2)
 
         # Create a text box for volume information
-        self.volume_text = self.ax_text.text(0.0, 0.25, '', fontsize=24)
+        self.volume_text = self.ax_text.text(0.0, 0.25, '', fontsize=self.get_font_size(1.6))
 
         # Add keyboard input instructions
         self.ax_text.text(0.00, 0.22, 'Keyboard Input Format (works with Ctrl+V):\n'
                                       'Z N β10 β20 β30 β40 β50 β60 β70 β80 β90 β100 β110 β120\n'
                                       'Example: 102 154 0.0 0.5 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0',
-                          fontsize=12, verticalalignment='top')
+                          fontsize=self.get_font_size(0.8), verticalalignment='top')
 
         # Add error message text (initially empty)
-        self.error_text = self.ax_text.text(0.02, 0.15, '', color='red', fontsize=12,
+        self.error_text = self.ax_text.text(0.02, 0.15, '', color='red', fontsize=self.get_font_size(0.8),
                                             verticalalignment='top')
 
         # Set up the radius plot with range from 0 to pi
         self.ax_radius.set_aspect('auto')
         self.ax_radius.grid(True)
-        self.ax_radius.set_title('R(θ) and Derivatives', fontsize=18)
-        self.ax_radius.set_xlabel('θ (radians)', fontsize=18)
-        self.ax_radius.set_ylabel('Value', fontsize=18)
+        self.ax_radius.set_title('R(θ) and Derivatives', fontsize=self.get_font_size(1.2))
+        self.ax_radius.set_xlabel('θ (radians)', fontsize=self.get_font_size(1.0))
+        self.ax_radius.set_ylabel('Value', fontsize=self.get_font_size(1.0))
         self.ax_radius.set_xlim(0, np.pi)
         self.theta_radius = np.linspace(0, np.pi, 1000)  # Separate theta array for radius plot
 
         # Set up the main plot
         self.ax_plot.set_aspect('equal')
         self.ax_plot.grid(True)
-        self.ax_plot.set_title('Nuclear Shape with Volume Conservation', fontsize=18)
-        self.ax_plot.set_xlabel('X (fm)', fontsize=18)
-        self.ax_plot.set_ylabel('Y (fm)', fontsize=18)
+        self.ax_plot.set_title('Nuclear Shape with Volume Conservation', fontsize=self.get_font_size(1.2))
+        self.ax_plot.set_xlabel('X (fm)', fontsize=self.get_font_size(1.0))
+        self.ax_plot.set_ylabel('Y (fm)', fontsize=self.get_font_size(1.0))
 
         # Initialize the plots
         calculator = NuclearShapeCalculator(self.nuclear_params)
@@ -434,8 +455,8 @@ class NuclearShapePlotter:
 
         # Style settings
         for slider in [self.slider_z, self.slider_n]:
-            slider.label.set_fontsize(18)
-            slider.valtext.set_fontsize(18)
+            slider.label.set_fontsize(self.get_font_size(1.2))
+            slider.valtext.set_fontsize(self.get_font_size(1.2))
 
     def create_beta_controls(self):
         """Create controls for beta parameters."""
@@ -728,14 +749,40 @@ class NuclearShapePlotter:
         )
 
         # Update the legend
-        self.ax_plot.legend(fontsize='small', loc='lower left')
-        self.ax_radius.legend(fontsize='small', loc='lower left')
+        self.ax_plot.legend(fontsize=self.get_font_size(0.8), loc='lower left')
+        self.ax_radius.legend(fontsize=self.get_font_size(0.8), loc='lower left')
         self.fig.canvas.draw_idle()
+
+    def on_resize(self, event):
+        """Handle window resize events."""
+        if event.name == 'resize_event':
+            # Update all font sizes
+            self.ax_radius.set_title('R(θ) and Derivatives', fontsize=self.get_font_size(1.2))
+            self.ax_radius.set_xlabel('θ (radians)', fontsize=self.get_font_size(1.0))
+            self.ax_radius.set_ylabel('Value', fontsize=self.get_font_size(1.0))
+            
+            self.ax_plot.set_title('Nuclear Shape with Volume Conservation', fontsize=self.get_font_size(1.2))
+            self.ax_plot.set_xlabel('X (fm)', fontsize=self.get_font_size(1.0))
+            self.ax_plot.set_ylabel('Y (fm)', fontsize=self.get_font_size(1.0))
+            
+            for slider in self.sliders:
+                slider.label.set_fontsize(self.get_font_size(1.2))
+                slider.valtext.set_fontsize(self.get_font_size(1.2))
+            
+            self.slider_z.label.set_fontsize(self.get_font_size(1.2))
+            self.slider_z.valtext.set_fontsize(self.get_font_size(1.2))
+            self.slider_n.label.set_fontsize(self.get_font_size(1.2))
+            self.slider_n.valtext.set_fontsize(self.get_font_size(1.2))
+            
+            self.ax_plot.legend(fontsize=self.get_font_size(0.8))
+            self.ax_radius.legend(fontsize=self.get_font_size(0.8))
+            
+            self.fig.canvas.draw_idle()
 
     def run(self):
         """Start the interactive plotting interface."""
         self.update_plot()
-        # plt.tight_layout()
+        self.fig.canvas.mpl_connect('resize_event', self.on_resize)
         plt.show(block=True)
 
 
