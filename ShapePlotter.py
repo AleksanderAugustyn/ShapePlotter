@@ -261,40 +261,59 @@ class NuclearShapePlotter:
 
     def __init__(self):
         """Initialize the plotter with default settings."""
-        self.r_sin_theta_line = None
-        self.r_cos_theta_line = None
-        self.dr_line = None
-        self.d2r_line = None
-        self.theta_radius = None
-        self.radius_line = None
-        self.ax_radius = None
-        self.sphere_line = None
-        self.root = None
-        self.submit_button = None
-        self.text_box = None
-        self.reset_button = None
-        self.save_button = None
-        self.slider_z = None
-        self.slider_n = None
-        self.btn_n_increase = None
-        self.btn_n_decrease = None
-        self.btn_z_increase = None
-        self.btn_z_decrease = None
-        self.volume_text = None
-        self.line = None
-        self.error_text = None
-        self.ax_text = None
-        self.ax_plot = None
-        self.fig = None
-        self.increase_buttons = None
-        self.decrease_buttons = None
-        self.sliders = None
-        self.nuclear_params = None
-        self.num_harmonics = 12
-        self.theta = np.linspace(0, 2 * np.pi, 2000)
-        self.initial_betas = [0.0] * self.num_harmonics
+        # Nuclear physics parameters
         self.initial_z = 102
         self.initial_n = 154
+        self.num_harmonics = 12
+        self.initial_betas = [0.0] * self.num_harmonics
+        self.nuclear_params = None
+
+        # Mathematical parameters
+        self.theta = np.linspace(0, 2 * np.pi, 2000)
+
+        # Plot elements - Main nuclear shape
+        self.line = None
+        self.sphere_line = None
+
+        # Plot elements - Radius analysis
+        self.radius_line = None
+        self.dr_line = None
+        self.d2r_line = None
+        self.r_sin_theta_line = None
+        self.r_cos_theta_line = None
+        self.theta_radius = None
+
+        # Matplotlib figure elements
+        self.fig = None
+        self.ax_plot = None
+        self.ax_radius = None
+        self.ax_text = None
+
+        # Text display elements
+        self.volume_text = None
+        self.error_text = None
+
+        # UI Controls - Sliders
+        self.slider_z = None
+        self.slider_n = None
+        self.sliders = None
+
+        # UI Controls - Buttons
+        self.btn_z_increase = None
+        self.btn_z_decrease = None
+        self.btn_n_increase = None
+        self.btn_n_decrease = None
+        self.increase_buttons = None
+        self.decrease_buttons = None
+        self.reset_button = None
+        self.save_button = None
+
+        # UI Controls - Text input
+        self.text_box = None
+        self.submit_button = None
+        self.root = None
+
+        # Initialize all components
         self.setup_initial_parameters()
         self.create_figure()
         self.setup_controls()
@@ -347,6 +366,7 @@ class NuclearShapePlotter:
                                             verticalalignment='top')
 
         # Set up the radius plot with range from 0 to pi
+        self.ax_radius.set_aspect('auto')
         self.ax_radius.grid(True)
         self.ax_radius.set_title('R(θ) and Derivatives', fontsize=18)
         self.ax_radius.set_xlabel('θ (radians)', fontsize=18)
