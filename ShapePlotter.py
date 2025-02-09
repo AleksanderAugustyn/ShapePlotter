@@ -778,9 +778,9 @@ class NuclearShapePlotter:
             self.slider_z.valtext.set_fontsize(self.get_font_size(1.2))
             self.slider_n.label.set_fontsize(self.get_font_size(1.2))
             self.slider_n.valtext.set_fontsize(self.get_font_size(1.2))
-            
-            self.ax_plot.legend(fontsize=self.get_font_size(0.8))
-            self.ax_radius.legend(fontsize=self.get_font_size(0.8))
+
+            self.ax_plot.legend(fontsize=self.get_font_size(0.8), loc='lower left')
+            self.ax_radius.legend(fontsize=self.get_font_size(0.8), loc='lower left')
             
             self.fig.canvas.draw_idle()
 
