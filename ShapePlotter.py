@@ -785,6 +785,10 @@ class NuclearShapePlotter:
 
             self.ax_plot.legend(fontsize=self.get_font_size(0.8), loc='lower left')
             self.ax_radius.legend(fontsize=self.get_font_size(0.8), loc='lower left')
+
+            self.volume_text.set_fontsize(self.get_font_size(1.2))
+            self.ax_text.texts[1].set_fontsize(self.get_font_size(0.8))
+            self.error_text.set_fontsize(self.get_font_size(0.8))
             
             self.fig.canvas.draw_idle()
 
