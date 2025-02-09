@@ -700,10 +700,12 @@ class NuclearShapePlotter:
             label='Neck (30-150)'
         )[0]
 
-        # Update plot limits
+        # Update plot limits and tick label sizes
         max_radius = np.max(np.abs(plot_radius)) * 1.5
         self.ax_plot.set_xlim(-max_radius, max_radius)
         self.ax_plot.set_ylim(-max_radius, max_radius)
+        self.ax_plot.tick_params(axis='both', labelsize=self.get_font_size(0.9))
+        self.ax_radius.tick_params(axis='both', labelsize=self.get_font_size(0.9))
 
         # Calculate measurements
         max_x_length = np.max(plot_x) - np.min(plot_x)
@@ -765,10 +767,12 @@ class NuclearShapePlotter:
             self.ax_radius.set_title('R(θ) and Derivatives', fontsize=self.get_font_size(1.2))
             self.ax_radius.set_xlabel('θ (radians)', fontsize=self.get_font_size(1.0))
             self.ax_radius.set_ylabel('Value', fontsize=self.get_font_size(1.0))
+            self.ax_radius.tick_params(axis='both', labelsize=self.get_font_size(0.9))
             
             self.ax_plot.set_title('Nuclear Shape with Volume Conservation', fontsize=self.get_font_size(1.2))
             self.ax_plot.set_xlabel('X (fm)', fontsize=self.get_font_size(1.0))
             self.ax_plot.set_ylabel('Y (fm)', fontsize=self.get_font_size(1.0))
+            self.ax_plot.tick_params(axis='both', labelsize=self.get_font_size(0.9))
             
             for slider in self.sliders:
                 slider.label.set_fontsize(self.get_font_size(1.2))
