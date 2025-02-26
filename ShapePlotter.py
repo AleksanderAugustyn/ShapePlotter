@@ -632,11 +632,15 @@ class NuclearShapePlotter:
         h = self.theta_radius[1] - self.theta_radius[0]
         dr = np.gradient(plot_radius_half, h)
         d2r = np.gradient(dr, h)
+        plot_r_cos_theta = plot_radius_half * np.cos(self.theta_radius)
+        plot_r_sin_theta = plot_radius_half * np.sin(self.theta_radius)
 
         # Update radius plot data
         self.radius_line.set_data(self.theta_radius, plot_radius_half)
         self.dr_line.set_data(self.theta_radius, dr)
         self.d2r_line.set_data(self.theta_radius, d2r)
+        self.r_cos_theta_line.set_data(self.theta_radius, plot_r_cos_theta)
+        self.r_sin_theta_line.set_data(self.theta_radius, plot_r_sin_theta)
 
         self.ax_radius.relim()
         self.ax_radius.autoscale_view()
