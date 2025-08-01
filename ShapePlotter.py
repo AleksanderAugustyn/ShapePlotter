@@ -472,7 +472,7 @@ class NuclearShapePlotter:
             ax_slider = plt.axes((0.25, 0.06 + i * slider_height, 0.5, 0.02))
             ax_increase = plt.axes((0.80, 0.06 + i * slider_height, 0.04, 0.02))
 
-            valmin, valmax = (-1.6, 1.6) if i == 0 else (0.0, 3.0) if i == 1 else (-1.0, 1.0)
+            valmin, valmax = (-1.6, 1.6) if i == 0 else (0.0, 4.0) if i == 1 else (-2.0, 2.0)
 
             slider = Slider(
                 ax=ax_slider,
